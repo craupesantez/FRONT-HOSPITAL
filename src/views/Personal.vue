@@ -1,7 +1,7 @@
 <template>
   <v-data-table
     :headers="headers"
-    :items="pacientes"
+    :items="personal"
     sort-by="calories"
     class="elevation-1"
   >
@@ -189,21 +189,6 @@
                   >
                   </v-text-field>
                 </v-col>
-                <v-col class="d-flex" cols="12" sm="6">
-                  <v-select
-                    label="Seleccionar roles"
-                    :items="allRoles"
-                    :deletable-chips="multipleRoles.length > 1"
-                    hide-selected
-                    v-model="multipleRoles"
-                    item-text="nombre"
-                    item-value="id"
-                    max-height="auto"
-                    required
-                    multiple
-                  ></v-select>
-                </v-col>
-                {{ multipleRoles }}
               </v-row>
             </v-card-text>
             <v-card-actions>
@@ -216,6 +201,93 @@
           </v-card>
         </v-dialog>
 
+        <v-dialog v-model="dialogRoles" max-width="700">
+          <template>
+            <v-card max-width="700">
+              <v-card-title>
+                <span class="text-h5">Agregar Roles</span>
+              </v-card-title>
+              <v-card-text>
+                <v-row>
+                  <v-col cols="12" sm="12">
+                    <v-text-field
+                      :value="itemNombres"
+                      label="Nombre Completo"
+                      disabled
+                    ></v-text-field>
+                  </v-col>
+                  <v-col class="d-flex" cols="12" sm="12">
+                    <v-select
+                      label="Seleccionar roles"
+                      :items="allRoles"
+                      :deletable-chips="multipleRoles.length > 0"
+                      v-model="multipleRoles"
+                      item-text="nombre"
+                      item-value="id"
+                      max-height="auto"
+                      :menu-props="{ offsetX: false }"
+                      chips
+                      multiple
+                    ></v-select>
+                  </v-col>
+                </v-row>
+                <v-card-actions>
+                  <v-spacer></v-spacer>
+                  <v-btn color="blue darken-1" text @click="closeRoles"
+                    >Cancelar</v-btn
+                  >
+                  <v-btn color="blue darken-1" text @click="saveRoles"
+                    >OK</v-btn
+                  >
+                </v-card-actions>
+              </v-card-text>
+            </v-card>
+          </template>
+        </v-dialog>
+
+        <v-dialog v-model="dialogEspecialidades" max-width="700">
+          <template>
+            <v-card max-width="700">
+              <v-card-title>
+                <span class="text-h5">Agregar Especialidades</span>
+              </v-card-title>
+              <v-card-text>
+                <v-row>
+                  <v-col cols="12" sm="12">
+                    <v-text-field
+                      :value="itemNombres"
+                      label="Nombre Completo"
+                      disabled
+                    ></v-text-field>
+                  </v-col>
+                  <v-col class="d-flex" cols="12" sm="12">
+                    <v-select
+                      label="Seleccionar especialidades"
+                      :items="allEspecialidades"
+                      :deletable-chips="multipleEspecialidades.length > 0"
+                      v-model="multipleEspecialidades"
+                      item-text="nombre"
+                      item-value="id"
+                      max-height="auto"
+                      :menu-props="{ offsetX: false }"
+                      chips
+                      multiple
+                    ></v-select>
+                  </v-col>
+                </v-row>
+                <v-card-actions>
+                  <v-spacer></v-spacer>
+                  <v-btn color="blue darken-1" text @click="closeEspecialidades"
+                    >Cancelar</v-btn
+                  >
+                  <v-btn color="blue darken-1" text @click="saveEspecialidades"
+                    >OK</v-btn
+                  >
+                </v-card-actions>
+              </v-card-text>
+            </v-card>
+          </template>
+        </v-dialog>
         <v-dialog v-model="dialogDelete" max-width="500px">
           <v-card>
             <v-card-title class="text-h5"
@@ -248,6 +320,12 @@
     <template v-slot:[`item.actions`]="{ item }">
       <v-icon small class="mr-2" @click="editItem(item)"> mdi-pencil </v-icon>
       <v-icon small @click="deleteItem(item)"> mdi-delete </v-icon>
+      <!--El siguiente es un boton para crear roles-->
+      <v-icon small @click="createRoles(item)">
+        mdi-human-capacity-increase
+      </v-icon>
+      <!--El siguiente es un boton para crear roles-->
+      <v-icon small @click="createEspecialidades(item)"> mdi-medal </v-icon>
     </template>
     <template v-slot:no-data>
       <v-btn color="primary" @click="getPersonal"> Reset </v-btn>
@@ -256,14 +334,21 @@
 </template>
 <script>
 import axios from "axios";
+import { de } from "vuetify/lib/locale";
 export default {
   data: (vm) => ({
+    itemNombres: "",
     allRoles: [],
+    allEspecialidades: [],
+    dialogRoles: false,
+    dialogEspecialidades: false,
     nombreComponent: "Personal",
     dialog: false,
     dialogDelete: false,
     catalogos: [],
     generos: [],
+    itemRoles: [],
+    itemEspecialidades: [],
     show2: true,
     menu2: false,
     errorMessages: "",
@@ -273,9 +358,11 @@ export default {
     existeCorreo: false,
     identificacionRules: [(v) => !!v || "identificacion requerida"],
     multipleRoles: [],
+    multipleEspecialidades: [],
     activoItemId: "",
     hasSaved: false,
     noSaved: false,
+    itemId: null,
     rulesObject: {
       required: (value) => !!value || "Campo requerido",
       min: (v) => v.length >= 8 || "Minimo 8 carácteres",
@@ -298,11 +385,12 @@ export default {
       { text: "Identificacion", value: "identificacion" },
       { text: "Correo", value: "correo" },
       { text: "Telefono", value: "telefono" },
-      { text: "Roles", value: "`${roles[0].nombre} -${roles[1].nombre}`" },
+      // { text: "Roles", value: "`${roles[0].nombre} -${roles[1].nombre}`" },
+      { text: "Roles", value: "rolesConcat" },
       { text: "Acciones", value: "actions", sortable: false },
     ],
     personas: [],
-    pacientes: [],
+    personal: [],
     editedIndex: -1,
     fechaNacimiento: new Date(
       Date.now() - new Date().getTimezoneOffset() * 60000
@@ -365,6 +453,12 @@ export default {
     dialogDelete(val) {
       val || this.closeDelete();
     },
+    dialogRoles(val) {
+      val || this.closeRoles();
+    },
+    dialogEspecialidades(val) {
+      val || this.closeEspecialidades();
+    },
   },
 
   methods: {
@@ -403,22 +497,36 @@ export default {
           .then((result) => {
             // this.catalogos = result.data;
             let res = result.data;
+            console.log(result.data);
             let roles = [];
             this.personas = res;
-            let rolPaciente = false;
-            this.pacientes = res.filter((item) => {
+            let rolPersona = false;
+            this.personal = res.filter((item) => {
               roles = item.roles;
-              rolPaciente = roles.some((rol) => rol.nombre !== "PACIENTE");
-              if (rolPaciente && item.activo) {
+              if (roles.length === 0) {
                 this.getAge(item.fechaNacimiento);
+                item.rolesConcat = "";
                 item.edad = this.edad;
                 return item;
+              } else {
+                rolPersona = roles.some((rol) => rol.nombre !== "PACIENTE");
+                if (rolPersona && item.activo) {
+                  let rolesConcat = "";
+                  roles.forEach((rol) => {
+                    rolesConcat = rolesConcat + rol.nombre + " ";
+                  });
+                  this.getAge(item.fechaNacimiento);
+                  item.rolesConcat = rolesConcat;
+                  item.edad = this.edad;
+                  return item;
+                }
               }
             });
 
-            console.log(this.pacientes);
+            console.log(this.personal);
             this.getCatalogos();
             this.getRoles();
+            this.getEspecialidades();
           });
       } catch (error) {
         console.log(error);
@@ -431,6 +539,15 @@ export default {
         console.log(this.allRoles);
       });
     },
+    async getEspecialidades() {
+      await axios
+        .get("http://localhost:3000/api/v1/especialidades")
+        .then((result) => {
+          let res = result.data;
+          this.allEspecialidades = res.filter((item) => item.activo == true);
+          console.log(this.allEspecialidades);
+        });
+    },
     async getCatalogos() {
       try {
         await axios
@@ -440,39 +557,51 @@ export default {
             let res = result.data;
             this.catalogos = res.filter((item) => {
               if (item.tipo === "CIUDAD") {
-                console.log(item.nombre);
                 return item;
               }
             });
             this.generos = res.filter((item) => {
               if (item.tipo === "GENERO") {
-                console.log(item.nombre);
                 return item;
               }
             });
             this.tiposIdentificacion = res.filter((item) => {
               if (item.tipo === "IDENTIFICACION") {
-                console.log(item.nombre);
                 return item;
               }
             });
-            console.log(this.catalogos);
           });
       } catch (error) {
         console.log(error);
       }
     },
     editItem(item) {
-      console.log(item.id);
-      console.log(this.pacientes.indexOf(item));
-      this.editedIndex = this.pacientes.indexOf(item);
+      this.editedIndex = this.personal.indexOf(item);
       this.visibleContrasenia = false;
       this.editedItem = Object.assign({}, item);
       this.dialog = true;
     },
+    createRoles(item) {
+      this.itemNombres = item.nombres + " " + item.apellidos;
+      this.itemRoles = item.roles;
+      this.itemId = item.id;
+      item.roles.forEach((role) => {
+        this.multipleRoles.push(role);
+      });
+      this.dialogRoles = true;
+    },
+    createEspecialidades(item) {
+      this.itemNombres = item.nombres + " " + item.apellidos;
+      this.itemEspecialidades = item.ramas;
+      this.itemId = item.id;
+      item.ramas.forEach((ramas) => {
+        this.multipleEspecialidades.push(ramas);
+      });
+      this.dialogEspecialidades = true;
+    },
 
     deleteItem(item) {
-      this.editedIndex = this.pacientes.indexOf(item);
+      this.editedIndex = this.personal.indexOf(item);
       this.activoItemId = item.id;
       this.editedItem = Object.assign({}, item);
       this.dialogDelete = true;
@@ -487,9 +616,8 @@ export default {
           })
           .then((result) => {
             pacienteEstado = result.data;
-            console.log(pacienteEstado);
           });
-        this.pacientes.splice(this.editedIndex, 1);
+        this.personal.splice(this.editedIndex, 1);
         this.closeDelete();
       } catch (error) {
         console.log(error);
@@ -504,7 +632,26 @@ export default {
         this.editedIndex = -1;
       });
     },
-
+    closeRoles() {
+      this.dialogRoles = false;
+      this.multipleRoles = [];
+      this.itemRoles = [];
+      this.itemId = null;
+      this.$nextTick(() => {
+        this.editedItem = Object.assign({}, this.defaultItem);
+        this.editedIndex = -1;
+      });
+    },
+    closeEspecialidades() {
+      this.dialogEspecialidades = false;
+      this.multipleEspecialidades = [];
+      this.itemEspecialidades = [];
+      this.itemId = null;
+      this.$nextTick(() => {
+        this.editedItem = Object.assign({}, this.defaultItem);
+        this.editedIndex = -1;
+      });
+    },
     closeDelete() {
       this.dialogDelete = false;
       this.visibleContrasenia = true;
@@ -513,12 +660,131 @@ export default {
         this.editedIndex = -1;
       });
     },
-
+    async saveRoles() {
+      try {
+        console.log("arreglo de roles nuevos:", this.multipleRoles);
+        console.log("arreglo de roles anteriores:", this.itemRoles);
+        let listRoles = [];
+        let deleteRoles = [];
+        let existeRol = true;
+        let noExisteRol = true;
+        this.multipleRoles.forEach((i) => {
+          existeRol = this.itemRoles.some(
+            (roles) =>
+              roles.PersonaRol.personaId === this.itemId &&
+              roles.PersonaRol.rolId == i
+          );
+          if (!existeRol) {
+            listRoles.push({
+              personaId: this.itemId,
+              rolId: i,
+            });
+          }
+        });
+        this.itemRoles.forEach((role) => {
+          noExisteRol = this.multipleRoles.some((i) => i === role.id);
+          if (!noExisteRol) {
+            deleteRoles.push(role.PersonaRol.id);
+          }
+        });
+        console.log("arreglo de roles que se van a eliminar:", deleteRoles);
+        console.log("arreglo de roles que se van a agregar:", listRoles);
+        if (deleteRoles.length > 0) {
+          deleteRoles.forEach(async (id) => {
+            await axios
+              .delete(`http://localhost:3000/api/v1/personas/deleteRol/${id}`)
+              .then((result) => {
+                console.log(result.data);
+                this.getPersonal();
+              });
+          });
+        }
+        if (listRoles.length > 0) {
+          listRoles.forEach(async (role) => {
+            await axios
+              .post("http://localhost:3000/api/v1/personas/add-rol", role)
+              .then((result) => {
+                console.log(result.data);
+                this.getPersonal();
+              });
+          });
+        }
+        this.dialogRoles = false;
+      } catch (error) {
+        console.log(error.message);
+      }
+    },
+    async saveEspecialidades() {
+      try {
+        console.log("arreglo de roles nuevos:", this.multipleEspecialidades);
+        console.log("arreglo de roles anteriores:", this.itemEspecialidades);
+        let listEspecialidades = [];
+        let deleteEspecialidades = [];
+        let existeEspecialidad = true;
+        let noExisteEspecialidad = true;
+        this.multipleEspecialidades.forEach((i) => {
+          existeEspecialidad = this.itemEspecialidades.some(
+            (especialidad) =>
+              especialidad.PersonaEspecialidad.personaId === this.itemId &&
+              especialidad.PersonaEspecialidad.especialidadId == i
+          );
+          if (!existeEspecialidad) {
+            listEspecialidades.push({
+              personaId: this.itemId,
+              especialidadId: i,
+            });
+          }
+        });
+        this.itemEspecialidades.forEach((especialidad) => {
+          noExisteEspecialidad = this.multipleEspecialidades.some(
+            (i) => i === especialidad.id
+          );
+          if (!noExisteEspecialidad) {
+            deleteEspecialidades.push(especialidad.PersonaEspecialidad.id);
+          }
+        });
+        console.log(
+          "arreglo de roles que se van a eliminar:",
+          deleteEspecialidades
+        );
+        console.log(
+          "arreglo de roles que se van a agregar:",
+          listEspecialidades
+        );
+        if (deleteEspecialidades.length > 0) {
+          deleteEspecialidades.forEach(async (id) => {
+            await axios
+              .delete(
+                `http://localhost:3000/api/v1/personas/deleteEspecialidad/${id}`
+              )
+              .then((result) => {
+                console.log(result.data);
+                this.getPersonal();
+              });
+          });
+        }
+        if (listEspecialidades.length > 0) {
+          listEspecialidades.forEach(async (especialidad) => {
+            await axios
+              .post(
+                "http://localhost:3000/api/v1/personas/add-especialidad",
+                especialidad
+              )
+              .then((result) => {
+                console.log(result.data);
+                this.getPersonal();
+              });
+          });
+        }
+        this.dialogEspecialidades = false;
+      } catch (error) {
+        console.log(error.message);
+      }
+    },
     async save() {
       try {
         if (this.editedIndex > -1) {
-          console.log(this.pacientes[this.editedIndex].id);
-          let idPaciente = this.pacientes[this.editedIndex].id;
+          let idPersonal = this.personal[this.editedIndex].id;
           delete this.editedItem.usuario;
           delete this.editedItem.id;
           delete this.editedItem.roles;
@@ -531,16 +797,15 @@ export default {
           delete this.editedItem.activo;
           delete this.editedItem.ramas;
           this.editedItem.fechaActualizo = new Date();
-          console.log(this.editedItem);
           await axios
             .patch(
-              `http://localhost:3000/api/v1/personas/${idPaciente}`,
+              `http://localhost:3000/api/v1/personas/${idPersonal}`,
               this.editedItem
             )
             .then((result) => {
               this.editedItem = result.data;
               delete this.editedItem.ramas;
-              Object.assign(this.pacientes[this.editedIndex], this.editedItem);
+              Object.assign(this.personal[this.editedIndex], this.editedItem);
             });
           this.visibleContrasenia = true;
         } else {
@@ -554,6 +819,7 @@ export default {
           //   this.noSaved = true;
           // } else {
           this.editedItem.activo = true;
+          console.log(this.editedItem);
           await axios
             .post(
               "http://localhost:3000/api/v1/personas/personal",
@@ -567,7 +833,7 @@ export default {
                 this.editedItem.edad = this.getAge(
                   this.editItem.fechaNacimiento
                 );
-                this.pacientes.push(this.editedItem);
+                this.personal.push(this.editedItem);
                 this.getPersonal();
                 // this.resetForm();
                 // this.$router.push({name:'about'});
