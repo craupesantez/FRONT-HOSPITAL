@@ -351,6 +351,7 @@ export default {
     medicos: [],
     persona: [],
     estados: [],
+    statesRoles: [],
     enableEstado: false,
     timed: "01:00:00",
     date: moment().format("YYYY-MM-DD"),
@@ -416,11 +417,29 @@ export default {
     fechaMasFraccion: null,
     convHoraInterger: null,
     editedIndex: -1,
+    isAdministrador:false,
+    isPaciente: false,
+    isMedico: false,
+    isAuxiliar:false,
+    idPersona:""
   }),
   mounted() {
+    this.statesRoles = this.$store.state.roles;
+    this.isAdministrador = this.statesRoles.some((item)=>item.nombre == "ADMINISTRADOR") ; 
+    this.isPaciente = this.statesRoles.some((item)=>item.nombre == "PACIENTE") ; 
+    this.isMedico = this.statesRoles.some((item)=>item.nombre == "MEDICO") ; 
+    this.isAuxiliar = this.statesRoles.some((item)=>item.nombre == "AUXILIAR") ; 
+    console.log("entra al mounted")
     this.$refs.calendar.checkChange();
   },
   created() {
+    this.statesRoles = this.$store.state.roles;
+    this.idPersona = this.$store.state.id;
+    this.isAdministrador = this.statesRoles.some((item)=>item.nombre == "ADMINISTRADOR") ; 
+    this.isPaciente = this.statesRoles.some((item)=>item.nombre == "PACIENTE") ; 
+    this.isMedico = this.statesRoles.some((item)=>item.nombre == "MEDICO") ; 
+    this.isAuxiliar = this.statesRoles.some((item)=>item.nombre == "AUXILIAR") ; 
+    console.log("entra al created")
     this.getEvents();
     this.getEspecialidades();
     this.getInvolucrados();
@@ -523,6 +542,7 @@ export default {
     },
     async getInvolucrados() {
       try {
+         
         axios.get("http://localhost:3000/api/v1/personas").then((result) => {
           let res = result.data;
           let roles = [];
@@ -535,9 +555,21 @@ export default {
             roles = item.roles;
             rolPaciente = roles.some((rol) => rol.nombre === "PACIENTE");
             if (rolPaciente && item.activo) {
-              item.nombreCompleto = item.nombres + " " + item.apellidos;
-              item.pacienteId = item.id;
-              return item;
+              if(this.isPaciente && !this.isAdministrador && !this.isMedico && !this.isAuxiliar ){
+                if(this.idPersona === item.id){
+                  console.log ("entra en paciente ")
+                  console.log (item)
+                  item.nombreCompleto = item.nombres + " " + item.apellidos;
+                  item.pacienteId = item.id;
+                return item;
+                }                
+              }else{
+                console.log ("entra en otro rol")
+                item.nombreCompleto = item.nombres + " " + item.apellidos;
+                item.pacienteId = item.id;
+                return item;
+              }
+              
             }
           });
           this.medicos = res.filter((item) => {
@@ -612,7 +644,25 @@ export default {
         });
         console.log(events);
         events.forEach((event) => {
-          this.getConvertHoraInterger(event.fraccion);
+          if(this.isPaciente && !this.isAdministrador && !this.isMedico && !this.isAuxiliar ){
+            if(this.idPersona === event.pacienteId){
+              this.agregarEventos(event);
+            }
+          }else if( !this.isAdministrador && this.isMedico && !this.isAuxiliar){
+            if(this.idPersona === event.medicoId || this.idPersona === event.pacienteId){
+              this.agregarEventos(event);
+            }
+          }else{
+            this.agregarEventos(event);
+          }
+        });
+        console.log(this.events);
+      } catch (error) {
+        console.log(error);
+      }
+    },
+    agregarEventos(event){
+      this.getConvertHoraInterger(event.fraccion);
           let hora = parseInt(event.hora.substring(0, 2));
           let min = parseInt(event.hora.substring(3, 5));
 
@@ -641,11 +691,6 @@ export default {
             estadoId: event.estadoId,
             color: this.color,
           });
-        });
-        console.log(this.events);
-      } catch (error) {
-        console.log(error);
-      }
     },
     viewDay({ date }) {
       this.focus = date;

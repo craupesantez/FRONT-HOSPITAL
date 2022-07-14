@@ -149,7 +149,7 @@ router.beforeEach(async (to, from, next) => {
         if ((!isPaciente && !isMedico && !isAuxiliar) && (to.path === "/login" || to.path === "/registrar-paciente")) {
           next()
         }
-        if (isPaciente && to.path === "/citas") {
+        if (isPaciente && (to.path === "/citas" || to.path === "/" || to.path === "/perfil")) {
           next()
         }
         if (isMedico && (to.path === "/" || to.path === "/citas" || to.path ==="/perfil")) {

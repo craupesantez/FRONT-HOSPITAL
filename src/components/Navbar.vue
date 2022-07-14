@@ -39,6 +39,7 @@
             <img src="/img1.png" alt="" />
           </v-avatar>
           <p class="white--text subheading mt-1 text-center">{{ nombres }}</p>
+          <p class="white--text subheading mt-1 text-center">{{ stringRoles }}</p>
         </v-flex>
         <v-flex class="mt-4 mb-4">
           <!-- s<Popup /> -->
@@ -76,6 +77,7 @@ export default {
     // visibleNavBar: false,
     auxtoken:null,
     nombres:null,
+    stringRoles: "",
     //visiblePaciente:true,
     roles:[],
     links: [
@@ -99,7 +101,8 @@ export default {
     let isMedico = roles.some(item => item.nombre=== "MEDICO");
     let isAuxiiliar = roles.some(item => item.nombre=== "Auxiiliar");
     if(!isAdministrador) {
-      if(isPaciente) {
+      if(isPaciente && !isMedico) {
+        this.stringRoles= "PACIENTE"
         this.links.forEach((item) =>{
           if(item.route ==="/citas" || item.route ==="/Dashboard" || item.route ==="/perfil"){
             item.visible = true;
@@ -108,6 +111,7 @@ export default {
           }
         }) 
       }else if(isMedico){
+        this.stringRoles= "MEDICO"
         this.links.forEach((item) =>{
           if(item.route ==="/citas" || item.route ==="/Dashboard" || item.route ==="/perfil"){
             item.visible = true;
@@ -116,6 +120,8 @@ export default {
           }
         }) 
       }
+    }else{
+      this.stringRoles= "ADMINISTRADOR"
     }
     console.log( "roles obtenidos del state: " , roles);
   },
@@ -134,9 +140,8 @@ export default {
       this.auxtoken = localStorage.getItem("token");
       if(this.auxtoken !==null) {
         this.nombres = localStorage.getItem("nombres");
-        this.roles = localStorage.getItem("roles");
+        // this.roles = JSON.parse(localStorage.getItem("roles"));
         console.log(this.roles);
-        //this.visiblePaciente= this.roles.some((item) => {item.nombre === "ADMINISTRADOR"});
 
       }
     } catch (error) {
