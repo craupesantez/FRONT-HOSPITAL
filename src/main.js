@@ -8,6 +8,9 @@ import 'material-design-icons-iconfont/dist/material-design-icons.css'
 import axios from 'axios'
 import VueAxios from 'vue-axios'
 import VueTextareaAutosize from 'vue-textarea-autosize'
+import moment from 'moment'
+
+Vue.prototype.moment = moment
 
 Vue.use(VueAxios, axios)
 

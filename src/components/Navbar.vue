@@ -21,8 +21,9 @@
             router
             :to="link.route"
             active-class="border"
+            v-show="link.visible"
           >
-            <v-list-item-title>{{ link.text }}</v-list-item-title>
+            <v-list-item-title v-show="link.visible">{{ link.text }}</v-list-item-title>
           </v-list-item>
         </v-list>
       </v-menu>
@@ -49,7 +50,7 @@
           :key="link.text"
           router
           :to="link.route"
-          v-show="visiblePaciente"
+          v-show="link.visible"
           active-class="border"
         >
           <v-list-item-action>
@@ -72,25 +73,52 @@ export default {
   },
   data: () => ({
     drawer: true,
-    visibleNavBar: false,
+    // visibleNavBar: false,
     auxtoken:null,
     nombres:null,
-    visiblePaciente:true,
+    //visiblePaciente:true,
     roles:[],
     links: [
-      { icon: "dashboard", text: "Dashboard", route: "/" },
-      { icon: "mdi-bed-outline", text: "Pacientes", route: "/pacientes" },
-      { icon: "mdi-account-hard-hat", text: "Personal", route: "/personal" },
-      { icon: "mdi-medal", text: "Especialidades", route: "/especialidades" },
+      { icon: "mdi-face-man-profile", text: "Perfil", route: "/perfil" , visible: true},
+      { icon: "dashboard", text: "Dashboard", route: "/", visible: true },
+      { icon: "mdi-bed-outline", text: "Pacientes", route: "/pacientes", visible: true },
+      { icon: "mdi-account-hard-hat", text: "Personal", route: "/personal", visible: true },
+      { icon: "mdi-medal", text: "Especialidades", route: "/especialidades" , visible: true},
       // { icon: "folder", text: "Especialista", route: "/especialistas" },
-      { icon: "mdi-human-capacity-increase", text: "Roles", route: "/Roles" },
-      { icon: "mdi-clipboard-list-outline", text: "Catalogos", route: "/Catalogos" },
-      { icon: "mdi-notebook-check", text: "Examenes", route: "/Examenes" },
-      { icon: "mdi-pill", text: "Medicamentos", route: "/Medicamentos" },
-      { icon: "mdi-calendar-multiple", text: "Citas", route: "/Citas" },
+      { icon: "mdi-human-capacity-increase", text: "Roles", route: "/roles" , visible: true },
+      { icon: "mdi-clipboard-list-outline", text: "Catalogos", route: "/catalogos" , visible: true },
+      { icon: "mdi-notebook-check", text: "Examenes", route: "/examenes" , visible: true },
+      { icon: "mdi-pill", text: "Medicamentos", route: "/medicamentos" , visible: true },
+      { icon: "mdi-calendar-multiple", text: "Citas", route: "/citas" , visible: true},
     ],
   }),
- 
+  mounted(){
+    var roles =this.$store.state.roles;
+    let isAdministrador = roles.some(item => item.nombre=== "ADMINISTRADOR");
+    let isPaciente = roles.some(item => item.nombre=== "PACIENTE");
+    let isMedico = roles.some(item => item.nombre=== "MEDICO");
+    let isAuxiiliar = roles.some(item => item.nombre=== "Auxiiliar");
+    if(!isAdministrador) {
+      if(isPaciente) {
+        this.links.forEach((item) =>{
+          if(item.route ==="/citas" || item.route ==="/Dashboard" || item.route ==="/perfil"){
+            item.visible = true;
+          }else{
+            item.visible = false;
+          }
+        }) 
+      }else if(isMedico){
+        this.links.forEach((item) =>{
+          if(item.route ==="/citas" || item.route ==="/Dashboard" || item.route ==="/perfil"){
+            item.visible = true;
+          }else{
+            item.visible = false;
+          }
+        }) 
+      }
+    }
+    console.log( "roles obtenidos del state: " , roles);
+  },
   methods: {
     ...mapActions([ "cerrarSesion" /*, 'getCatalogos'*/]),
     redirectLogin() {

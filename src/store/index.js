@@ -10,15 +10,18 @@ export default new Vuex.Store({
     apellidos: null,
     id: null,
     roles: [],
-    visibleNavBar: false,
+    // visibleNavBar: false,
+    bandera: false,
   },
   getters: {
     getToken(state){
       return state.token;
     },
     getRoles(state){
-      console.log(" a traves de la funcion getRoles",state.roles);
       return state.roles;
+    },
+    getBandera(state){
+      return state.bandera;
     }
   },
   mutations: {
@@ -37,8 +40,11 @@ export default new Vuex.Store({
     setRoles(state, payload) {
       state.roles = payload;
     },
-    setVisibleNavBar(state, payload) {
-      state.visibleNavBar = payload;
+    // setVisibleNavBar(state, payload) {
+    //   state.visibleNavBar = payload;
+    // },
+    setBandera(state, payload) {
+      state.bandera = payload;
     }
     // setCatalogos(state, payload) {
     //   state.catalogos = payload;
@@ -49,11 +55,13 @@ export default new Vuex.Store({
       if (localStorage.getItem('token')){
         // console.log('debe leer el token '+ localStorage.getItem('token'))
         commit('setToken', localStorage.getItem('token'));
-        commit('setVisibleNavBar', localStorage.getItem('visibleNavBar'));
-        commit('setRoles', localStorage.getItem('roles'));
+        // commit('setVisibleNavBar', localStorage.getItem('visibleNavBar'));
+        commit('setRoles', JSON.parse(localStorage.getItem('roles')));
+        commit('setBandera', true);
       }else{
         commit('setToken', null);
-        commit('setVisibleNavBar', false);
+        // commit('setVisibleNavBar', false);
+        commit('setBandera', false);
       }
     },
     cerrarSesion({commit}) {
@@ -67,8 +75,8 @@ export default new Vuex.Store({
       commit('setApellidos', null);
       commit('setId', null);
       commit('setRoles', null);
-      console.log("valor del store al cerrarSesion",this.state.roles)
-      commit('visibleNavBar', false);
+      // commit('visibleNavBar', false);
+      commit('setBandera', false);
     },
     // async getCatalogos({commit}){
     //   await axios.get('http://localhost:3000/api/v1/catalogos')

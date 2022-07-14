@@ -86,6 +86,18 @@ export default {
       valid: true,
     };
   },
+  mounted(){
+    try {
+      this.auxtoken = localStorage.getItem("token");
+      if (this.auxtoken !== null) {
+        this.$router.push("/");
+      }else{
+        // localStorage.setItem("visibleNavBar", false);
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  },
   computed: {
     ...mapState(["token", "nombres", "apellidos", "id", "roles"]),
   },
@@ -103,20 +115,29 @@ export default {
           .then((result) => {
             this.$store.commit('setToken', result.data.token);
             if(result.data.token!==null){
-              this.$store.commit('setVisibleNavBar', true);
+              // this.$store.commit('setVisibleNavBar', true);
               this.$store.commit('setRoles', result.data.user.persona.roles);
+              this.$store.commit('setBandera', true);
+              this.$store.commit('setId', result.data.user.persona.id);
+              localStorage.setItem("token", result.data.token);
+              localStorage.setItem("nombres", result.data.user.persona.nombres);
+              localStorage.setItem("apellidos", result.data.user.persona.apellidos);
+              localStorage.setItem("id", result.data.user.persona.id);
+              localStorage.setItem("roles", JSON.stringify(result.data.user.persona.roles));
+              localStorage.setItem("username", JSON.stringify(result.data.user.username));
+              localStorage.setItem("bandera", true);
+              this.auxtoken = result.data.token;
             }else{
-              this.$store.commit('setVisibleNavBar', false);
+              // this.$store.commit('setVisibleNavBar', false);
             }  
-            localStorage.setItem("token", result.data.token);
-            console.log("datos", result.data.user.persona.nombres);
-            localStorage.setItem("nombres", result.data.user.persona.nombres);
-            localStorage.setItem("apellidos", result.data.user.persona.apellidos);
-            localStorage.setItem("id", result.data.user.persona.id);
-            localStorage.setItem("roles", JSON.stringify(result.data.user.persona.roles));
-            localStorage.setItem("username", JSON.stringify(result.data.user.username));
-            localStorage.setItem("visibleNavBar", true);
-            this.auxtoken = result.data.token;
+            // localStorage.setItem("token", result.data.token);
+            // localStorage.setItem("nombres", result.data.user.persona.nombres);
+            // localStorage.setItem("apellidos", result.data.user.persona.apellidos);
+            // localStorage.setItem("id", result.data.user.persona.id);
+            // localStorage.setItem("roles", JSON.stringify(result.data.user.persona.roles));
+            // localStorage.setItem("username", JSON.stringify(result.data.user.username));
+            // localStorage.setItem("bandera", true);
+            // this.auxtoken = result.data.token;
             if (this.auxtoken !== null) {
               this.$router.push({ path: "/" });
               // this.$router.push({name:'about'});
@@ -128,16 +149,7 @@ export default {
     },
   },
   created: function () {
-    try {
-      this.auxtoken = localStorage.getItem("token");
-      if (this.auxtoken !== null) {
-        this.$router.push("/");
-      }else{
-        localStorage.setItem("visibleNavBar", false);
-      }
-    } catch (error) {
-      console.log(error);
-    }
+    
   },
 };
 </script>
