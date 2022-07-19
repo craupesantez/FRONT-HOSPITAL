@@ -9,6 +9,7 @@ export default new Vuex.Store({
     nombres: null,
     apellidos: null,
     id: null,
+    idCita: null,
     roles: [],
     // visibleNavBar: false,
     bandera: false,
@@ -22,6 +23,9 @@ export default new Vuex.Store({
     },
     getBandera(state){
       return state.bandera;
+    },
+    getIdCita(state){
+      return state.idCita;
     }
   },
   mutations: {
@@ -45,6 +49,9 @@ export default new Vuex.Store({
     // },
     setBandera(state, payload) {
       state.bandera = payload;
+    },
+    setIdCita(state, payload) {
+      state.idCita = payload;
     }
     // setCatalogos(state, payload) {
     //   state.catalogos = payload;
@@ -77,6 +84,7 @@ export default new Vuex.Store({
       commit('setRoles', null);
       // commit('visibleNavBar', false);
       commit('setBandera', false);
+      commit('idCita', null)
     },
     // async getCatalogos({commit}){
     //   await axios.get('http://localhost:3000/api/v1/catalogos')

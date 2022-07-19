@@ -13,8 +13,8 @@
 
         <v-dialog v-model="dialog" max-width="500px">
           <template v-slot:activator="{ on, attrs }">
-            <v-btn color="primary" dark class="mb-2" v-bind="attrs" v-on="on">
-              Nuevo Pedido
+            <v-btn color="primary" dark class="mb-2" v-bind="attrs" v-on="on" v-show="enableCUD">
+              Nuevo Receta
             </v-btn>
           </template>
           <v-card>
@@ -22,8 +22,8 @@
               <span class="text-h5">{{ formTitle }}</span>
             </v-card-title>
             <v-card-text>
-              <v-row>
-                <v-col class="d-flex" cols="12" sm="6">
+              <!-- <v-row> -->
+                <!-- <v-col class="d-flex" cols="12" sm="6">
                   <v-autocomplete
                     v-model="editedItem.cita"
                     item-value="citaId"
@@ -38,8 +38,8 @@
                     no-data-text="No existen citas"
                     outlined
                   ></v-autocomplete>
-                </v-col>
-                <v-col class="d-flex" cols="12" sm="6">
+                </v-col> -->
+                <!-- <v-col class="d-flex" cols="12" sm="6"> -->
                   <v-autocomplete
                     v-model="editedItem.medicamento"
                     item-value="medicamentoId"
@@ -51,16 +51,16 @@
                     required
                     :rules="selectRules"
                     return-object
-                    no-data-text="No existen medicamentos"
+                    no-data-text="No existen examenes"
                     outlined
                   ></v-autocomplete>
-                </v-col>
-                <v-col class="d-flex" cols="12" sm="6">
+                <!-- </v-col>
+                <v-col class="d-flex" cols="12" sm="6"> -->
                   <v-text-field
                     v-model="editedItem.indicaciones"
                     :rules="[
                       () =>
-                        !!editedItem.resultado ||
+                        !!editedItem.indicaciones ||
                         'Los requisitos son requerido',
                     ]"
                     :error-messages="errorMessages"
@@ -70,24 +70,17 @@
                     outlined
                   >
                   </v-text-field>
-                </v-col>
-                <v-col class="d-flex" cols="12" sm="6">
                   <v-text-field
                     v-model="editedItem.cantidad"
-                    :rules="[
-                      () =>
-                        !!editedItem.resultado ||
-                        'Los requisitos son requerido',
-                    ]"
-                    :error-messages="errorMessages"
-                    color="accent"
+                    hide-details
+                    single-line
                     label="Cantidad"
                     required
                     outlined
-                  >
-                  </v-text-field>
-                </v-col>
-              </v-row>
+                    type="number"
+                  ></v-text-field>
+                <!-- </v-col>
+              </v-row> -->
             </v-card-text>
             <v-card-actions>
               <v-spacer></v-spacer>
@@ -120,8 +113,8 @@
       </v-toolbar>
     </template>
     <template v-slot:[`item.actions`]="{ item }">
-      <v-icon small class="mr-2" @click="editItem(item)"> mdi-pencil </v-icon>
-      <v-icon small @click="deleteItem(item)"> mdi-delete </v-icon>
+      <v-icon small class="mr-2" @click="editItem(item)" v-show="enableCUD"> mdi-pencil </v-icon>
+      <v-icon small @click="deleteItem(item)" v-show="enableCUD"> mdi-delete </v-icon>
     </template>
     <template v-slot:no-data>
       <v-btn color="primary" @click="getRecetas"> Reset </v-btn>
@@ -145,7 +138,7 @@ export default {
         value: "id",
       },
       { text: "N° Cita", value: "citaId" },
-      { text: "N° medicamento", value: "medicamentoId" },
+      { text: "Medicamento", value: "nombreMedicamento" },
       { text: "Indicaciones", value: "indicaciones" },
         { text: "Cantidad", value: "cantidad" },
       { text: "Acciones", value: "actions", sortable: false },
@@ -153,22 +146,31 @@ export default {
     recetas: [],
     medicamentos: [],
     citas: [],
+    idCita:null,
     editedIndex: -1,
-    selectRules: [(v) => !!v || "Paciente requerido"],
+    selectRules: [(v) => !!v || "Es requerido"],
     editedItem: {
-      cita: [],
+      cita:[],
       medicamento: [],
       indicaciones: "",
-      cantidad:0
+      cantidad: 1
     },
     defaultItem: {
-      cita: [],
+       cita:[],
       medicamento: [],
       indicaciones: "",
-      cantidad:0
+      cantidad: 1
     },
+    statesRoles: [],
+    isAdministrador: false,
+    isPaciente: false,
+    isMedico: false,
+    isAuxiliar: false,
+    enableCUD: false,
   }),
-
+  mounted() {
+    this.getCitas();
+  },
   computed: {
     formTitle() {
       return this.editedIndex === -1 ? "Nuevo Medicamento" : "Editar Medicamento";
@@ -187,13 +189,24 @@ export default {
   methods: {
     async getRecetas() {
       try {
+        this.idCita =this.$store.state.idCita;
         await axios
           .get("http://localhost:3000/api/v1/citas/recetas")
           .then((result) => {
             // this.catalogos = result.data;
             let res = result.data;
-            this.recetas = res;
-            console.log(this.recetas);
+            this.recetas = res.filter(item=>{
+              if(item.citaId === this.idCita){
+                this.medicamentos.forEach((medicamento)=>{
+                  if(medicamento.id === item.medicamentoId){
+                    item.nombreMedicamento = medicamento.nombre;
+                  }
+                });
+                console.log(item);
+                return item;
+              }
+            });
+            console.log("pedidos prueba: " , this.recetas);
           });
       } catch (error) {
         console.log(error);
@@ -201,14 +214,18 @@ export default {
     },
 
     async getMedicamentos() {
-      try {
+     try {
         await axios
           .get("http://localhost:3000/api/v1/medicamentos")
           .then((result) => {
             // this.catalogos = result.data;
             let res = result.data;
-            this.medicamentos = res.filter((item) => item.activo === true);
-            console.log(this.medicamentos);
+            this.medicamentos = res.filter((item) => {
+              if(item.activo === true){
+                item.medicamentoId= item.id;
+                return item;
+              }
+              });
           });
       } catch (error) {
         console.log(error);
@@ -219,8 +236,9 @@ export default {
         await axios.get("http://localhost:3000/api/v1/citas").then((result) => {
           // this.catalogos = result.data;
           let res = result.data;
-          this.citas = res;
-          console.log(this.citas);
+          this.citas = res.filter((item)=>{
+            item.citaId = item.id; 
+          });
         });
       } catch (error) {
         console.log(error);
@@ -228,20 +246,24 @@ export default {
     },
 
     customFilter(item, queryText, itemText) {
-      const textOne = item.id.toLowerCase();
+      const textOne = item.nombre.toLowerCase();
       const searchText = queryText.toLowerCase();
       return textOne.indexOf(searchText) > -1;
     },
     editItem(item) {
-      console.log(item.id);
-      console.log(this.pedidos.indexOf(item));
-      this.editedIndex = this.pedidos.indexOf(item);
-      this.editedItem = Object.assign({}, item);
+      this.editedIndex = this.recetas.indexOf(item);
+       this.editedItem ={
+        cita: {citaId: item.citaId},
+        medicamento: {medicamentoId: item.medicamentoId},
+        id: item.id,
+        indicaciones: item.indicaciones,
+        cantidad: item.cantidad,
+      };
       this.dialog = true;
     },
 
     deleteItem(item) {
-      this.editedIndex = this.pedidos.indexOf(item);
+      this.editedIndex = this.recetas.indexOf(item);
       this.activoItemId = item.id;
       this.editedItem = Object.assign({}, item);
       this.dialogDelete = true;
@@ -249,16 +271,16 @@ export default {
 
     async deleteItemConfirm() {
       try {
-        let pedidoDeleteId;
+        let recetaDeleteId;
         await axios
           .delete(
             `http://localhost:3000/api/v1/citas/delete-pedido/${this.activoItemId}`
           )
           .then((result) => {
-            pedidoDeleteId = result.data;
-            console.log(pedidoDeleteId);
+            recetaDeleteId = result.data;
+            console.log(recetaDeleteId);
           });
-        this.pedidos.splice(this.editedIndex, 1);
+        this.recetas.splice(this.editedIndex, 1);
         this.closeDelete();
       } catch (error) {
         console.log(error);
@@ -281,42 +303,48 @@ export default {
       });
     },
 
+    defaultRecetaHijo(value){
+      if(value){
+        this.getRecetas();
+      }else{
+        this.recetas=[];
+      }
+      
+    },
     async save() {
       try {
         if (this.editedIndex > -1) {
-          let idPedido = this.pedidos[this.editedIndex].id;
+          let idPedido = this.recetas[this.editedIndex].id;
           delete this.editedItem.id;
+          let editMedicamento ={
+            citaId: this.editedItem.cita.citaId,
+            medicamentoId: this.editedItem.medicamento.medicamentoId,
+            indicaciones: this.editedItem.indicaciones,
+            cantidad : this.editedItem.cantidad,
+          };
           await axios
             .patch(
-              `http://localhost:3000/api/v1/citas/update-examen/${idPedido}`,
-              this.editedItem
+              `http://localhost:3000/api/v1/citas/update-medicamento/${idPedido}`,
+              editMedicamento
             )
             .then((result) => {
               this.editedItem = result.data;
-              Object.assign(this.pedidos[this.editedIndex], this.editedItem);
+              Object.assign(this.recetas[this.editedIndex], this.editedItem);
             });
         } else {
-          let newPedido;
-          if (this.editedItem.resultado) {
-            newPedido = {
-              citaId: this.editedItem.cita.id,
-              examenId: this.editedItem.examen.id,
-              resultado: this.editedItem.resultado,
+          let newPedido = {
+              citaId: this.idCita,
+              medicamentoId: this.editedItem.medicamento.id,
+              indicaciones: this.editedItem.indicaciones,
+              cantidad: this.editedItem.cantidad,
             };
-            console.log(newPedido);
-          }else{
-            newPedido = {
-              citaId: this.editedItem.cita.id,
-              examenId: this.editedItem.examen.id,
-            };
-          }
           await axios
-            .post("http://localhost:3000/api/v1/citas/add-examen", newPedido)
+            .post("http://localhost:3000/api/v1/citas/add-medicamento", newPedido)
             .then((result) => {
               this.editedItem = result.data;
               if (this.editedItem !== null) {
-                this.pedidos.push(this.editedItem);
-                this.getPedidos();
+                this.recetas.push(this.editedItem);
+                this.getRecetas();
               }
             });
         }
@@ -327,6 +355,26 @@ export default {
     },
   },
   created() {
+    this.statesRoles = this.$store.state.roles;
+    this.idPersona = this.$store.state.id;
+    this.isAdministrador = this.statesRoles.some(
+      (item) => item.nombre == "ADMINISTRADOR"
+    );
+    this.isPaciente = this.statesRoles.some(
+      (item) => item.nombre == "PACIENTE"
+    );
+    this.isMedico = this.statesRoles.some((item) => item.nombre == "MEDICO");
+    this.isAuxiliar = this.statesRoles.some(
+      (item) => item.nombre == "AUXILIAR"
+    );
+    if(this.isPaciente &&
+      !this.isAdministrador &&
+      !this.isMedico &&
+      !this.isAuxiliar){
+        this.enableCUD = false;
+      }else{
+        this.enableCUD = true;
+      }
     this.getRecetas();
     this.getMedicamentos();
     this.getCitas();

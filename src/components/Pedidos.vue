@@ -13,7 +13,7 @@
 
         <v-dialog v-model="dialog" max-width="500px">
           <template v-slot:activator="{ on, attrs }">
-            <v-btn color="primary" dark class="mb-2" v-bind="attrs" v-on="on">
+            <v-btn color="primary" dark class="mb-2" v-bind="attrs" v-on="on" v-show="enableCUD">
               Nuevo Pedido
             </v-btn>
           </template>
@@ -22,24 +22,6 @@
               <span class="text-h5">{{ formTitle }}</span>
             </v-card-title>
             <v-card-text>
-              <v-row>
-                <v-col class="d-flex" cols="12" sm="6">
-                  <v-autocomplete
-                    v-model="editedItem.cita"
-                    item-value="citaId"
-                    :items="citas"
-                    :filter="customFilter"
-                    color="accent"
-                    item-text="id"
-                    label="Cita"
-                    required
-                    :rules="selectRules"
-                    return-object
-                    no-data-text="No existen citas"
-                    outlined
-                  ></v-autocomplete>
-                </v-col>
-                <v-col class="d-flex" cols="12" sm="6">
                   <v-autocomplete
                     v-model="editedItem.examen"
                     item-value="examenId"
@@ -54,8 +36,8 @@
                     no-data-text="No existen examenes"
                     outlined
                   ></v-autocomplete>
-                </v-col>
-                <v-col class="d-flex" cols="12" sm="6">
+                <!-- </v-col> -->
+                <!-- <v-col class="d-flex" cols="12" sm="6"> -->
                   <v-text-field
                     v-model="editedItem.resultado"
                     :rules="[
@@ -70,8 +52,8 @@
                     outlined
                   >
                   </v-text-field>
-                </v-col>
-              </v-row>
+                <!-- </v-col> -->
+              <!-- </v-row> -->
             </v-card-text>
             <v-card-actions>
               <v-spacer></v-spacer>
@@ -104,8 +86,8 @@
       </v-toolbar>
     </template>
     <template v-slot:[`item.actions`]="{ item }">
-      <v-icon small class="mr-2" @click="editItem(item)"> mdi-pencil </v-icon>
-      <v-icon small @click="deleteItem(item)"> mdi-delete </v-icon>
+      <v-icon small class="mr-2" @click="editItem(item)" v-show="enableCUD"> mdi-pencil </v-icon>
+      <v-icon small @click="deleteItem(item)" v-show="enableCUD"> mdi-delete </v-icon>
     </template>
     <template v-slot:no-data>
       <v-btn color="primary" @click="getPedidos"> Reset </v-btn>
@@ -129,7 +111,7 @@ export default {
         value: "id",
       },
       { text: "N° Cita", value: "citaId" },
-      { text: "N° Examen", value: "examenId" },
+      { text: "Examen", value: "nombreExamen" },
       { text: "resultado", value: "resultado" },
       //   { text: "Activo", value: "activo" },
       { text: "Acciones", value: "actions", sortable: false },
@@ -137,10 +119,11 @@ export default {
     pedidos: [],
     examenes: [],
     citas: [],
+    idCita:null,
     editedIndex: -1,
-    selectRules: [(v) => !!v || "Paciente requerido"],
+    selectRules: [(v) => !!v || "Es requerido"],
     editedItem: {
-      cita: [],
+      cita:[],
       examen: [],
       resultado: "",
     },
@@ -149,8 +132,16 @@ export default {
       examen: [],
       resultado: "",
     },
+    statesRoles: [],
+    isAdministrador: false,
+    isPaciente: false,
+    isMedico: false,
+    isAuxiliar: false,
+    enableCUD: false,
   }),
-
+  mounted() {
+    this.getCitas();
+  },
   computed: {
     formTitle() {
       return this.editedIndex === -1 ? "Nuevo Pedido" : "Editar Pedido";
@@ -169,13 +160,25 @@ export default {
   methods: {
     async getPedidos() {
       try {
+        this.idCita =this.$store.state.idCita;
+        console.log("idCita: " + this.idCita);
         await axios
           .get("http://localhost:3000/api/v1/citas/pedidos")
           .then((result) => {
             // this.catalogos = result.data;
             let res = result.data;
-            this.pedidos = res;
-            console.log(this.pedidos);
+            // this.pedidos= res;
+            this.pedidos = res.filter(item=>{
+              if(item.citaId === this.idCita){
+                this.examenes.forEach((examen)=>{
+                  if(examen.id === item.examenId){
+                    item.nombreExamen = examen.nombre;
+                  }
+                });  
+                return item;
+              }
+            });
+            console.log("pedidos prueba: " , this.pedidos);
           });
       } catch (error) {
         console.log(error);
@@ -189,7 +192,12 @@ export default {
           .then((result) => {
             // this.catalogos = result.data;
             let res = result.data;
-            this.examenes = res.filter((item) => item.activo === true);
+            this.examenes = res.filter((item) => {
+              if(item.activo === true){
+                item.examenId= item.id;
+                return item;
+              }
+              });
             console.log(this.examenes);
           });
       } catch (error) {
@@ -199,9 +207,10 @@ export default {
     async getCitas() {
       try {
         await axios.get("http://localhost:3000/api/v1/citas").then((result) => {
-          // this.catalogos = result.data;
           let res = result.data;
-          this.citas = res;
+          this.citas = res.filter((item)=>{
+            item.citaId = item.id; 
+          });
           console.log(this.citas);
         });
       } catch (error) {
@@ -210,15 +219,19 @@ export default {
     },
 
     customFilter(item, queryText, itemText) {
-      const textOne = item.id.toLowerCase();
+      const textOne = item.nombre.toLowerCase();
       const searchText = queryText.toLowerCase();
       return textOne.indexOf(searchText) > -1;
     },
     editItem(item) {
-      console.log(item.id);
-      console.log(this.pedidos.indexOf(item));
       this.editedIndex = this.pedidos.indexOf(item);
-      this.editedItem = Object.assign({}, item);
+      this.editedItem ={
+        cita: {citaId: item.citaId},
+        examen: {examenId: item.examenId},
+        id: item.id,
+        resultado: item.resultado,
+      };
+      console.log(this.editedItem);
       this.dialog = true;
     },
 
@@ -263,32 +276,55 @@ export default {
       });
     },
 
+    defaultPedidoHijo(value){
+      if(value){
+        this.getPedidos();
+      }else{
+        this.pedidos=[];
+      }
+      
+    },
     async save() {
       try {
         if (this.editedIndex > -1) {
           let idPedido = this.pedidos[this.editedIndex].id;
           delete this.editedItem.id;
+          let editExamen;
+          if(this.editedItem.resultado){
+            editExamen ={
+              citaId: this.editedItem.cita.citaId,
+              examenId: this.editedItem.examen.examenId,
+              resultado: this.editedItem.resultado
+            };
+          }else{
+            editExamen ={
+              citaId: this.editedItem.cita.citaId,
+              examenId: this.editedItem.examen.examenId,
+            };
+          }
+          
           await axios
             .patch(
               `http://localhost:3000/api/v1/citas/update-examen/${idPedido}`,
-              this.editedItem
+              editExamen
             )
             .then((result) => {
               this.editedItem = result.data;
+              this.getPedidos();
               Object.assign(this.pedidos[this.editedIndex], this.editedItem);
             });
         } else {
           let newPedido;
           if (this.editedItem.resultado) {
             newPedido = {
-              citaId: this.editedItem.cita.id,
+              citaId: this.idCita,
               examenId: this.editedItem.examen.id,
               resultado: this.editedItem.resultado,
             };
             console.log(newPedido);
           }else{
             newPedido = {
-              citaId: this.editedItem.cita.id,
+              citaId: this.idCita,
               examenId: this.editedItem.examen.id,
             };
           }
@@ -309,9 +345,29 @@ export default {
     },
   },
   created() {
-    this.getPedidos();
+     this.statesRoles = this.$store.state.roles;
+    this.idPersona = this.$store.state.id;
+    this.isAdministrador = this.statesRoles.some(
+      (item) => item.nombre == "ADMINISTRADOR"
+    );
+    this.isPaciente = this.statesRoles.some(
+      (item) => item.nombre == "PACIENTE"
+    );
+    this.isMedico = this.statesRoles.some((item) => item.nombre == "MEDICO");
+    this.isAuxiliar = this.statesRoles.some(
+      (item) => item.nombre == "AUXILIAR"
+    );
+    if(this.isPaciente &&
+      !this.isAdministrador &&
+      !this.isMedico &&
+      !this.isAuxiliar){
+        this.enableCUD = false;
+      }else{
+        this.enableCUD = true;
+      }
     this.getExamenes();
     this.getCitas();
+    this.getPedidos();
   },
 };
 </script>

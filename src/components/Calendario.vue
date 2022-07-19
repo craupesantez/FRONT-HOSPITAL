@@ -46,7 +46,7 @@
               </v-list>
             </v-menu>
 
-            <v-dialog v-model="dialog" max-width="700px">
+            <v-dialog v-model="dialog" max-width="800px">
               <template v-slot:activator="{ on, attrs }">
                 <v-btn
                   class="mx-2"
@@ -67,7 +67,7 @@
                     {{ formTitle }}
                   </h2>
                 </v-card-title>
-                
+
                 <!-- Lo de arriba es nuevo -->
                 <v-card-text>
                   <v-form ref="form" v-model="valid" lazy-validatio>
@@ -92,100 +92,96 @@
                       :rules="detalleRules"
                     >
                     </v-text-field>
-                    <v-autocomplete
-                      v-model="editedItem.paciente"
-                      item-value="pacienteId"
-                      :items="pacientes"
-                      :filter="customFilter2"
-                      color="accent"
-                      item-text="nombreCompleto"
-                      label="Paciente"
-                      required
-                      :rules="selectRules"
-                      return-object
-                      no-data-text="No existen pacientes"
-                      outlined
-                    ></v-autocomplete>
-                    <v-autocomplete
-                      v-model="editedItem.especialidad"
-                      item-value="especialidadId"
-                      :items="especialidades"
-                      :filter="customFilter"
-                      color="accent"
-                      item-text="nombre"
-                      label="Especialidad"
-                      required
-                      :rules="selectRules"
-                      return-object
-                      no-data-text="No existen especialidades"
-                      outlined
-                    ></v-autocomplete>
+                    <v-row>
+                      <v-col>
+                        <v-autocomplete
+                          v-model="editedItem.paciente"
+                          item-value="pacienteId"
+                          :items="pacientes"
+                          :filter="customFilter2"
+                          color="accent"
+                          item-text="nombreCompleto"
+                          label="Paciente"
+                          required
+                          :rules="selectRules"
+                          return-object
+                          no-data-text="No existen pacientes"
+                          outlined
+                        ></v-autocomplete>
+                      </v-col>
+                      <v-col>
+                        <v-autocomplete
+                          v-model="editedItem.especialidad"
+                          item-value="especialidadId"
+                          :items="especialidades"
+                          :filter="customFilter"
+                          color="accent"
+                          item-text="nombre"
+                          label="Especialidad"
+                          required
+                          :rules="selectRules"
+                          return-object
+                          no-data-text="No existen especialidades"
+                          outlined
+                        ></v-autocomplete>
+                      </v-col>
+                    </v-row>
                     <!-- agregar la siguiente propiedad si se le agrega a la especialidad el color -->
                     <!-- @change="selectEspecialidad" -->
-                    <v-autocomplete
-                      v-model="editedItem.medico"
-                      item-value="medicoId"
-                      :items="medicos"
-                      :filter="customFilter2"
-                      color="accent"
-                      item-text="nombreCompleto"
-                      label="Medico"
-                      required
-                      :rules="selectRules"
-                      return-object
-                      no-data-text="No existen medicos"
-                      outlined
-                    ></v-autocomplete>
-                    <v-autocomplete
-                      v-model="editedItem.estado"
-                      item-value="estadoId"
-                      :items="estados"
-                      :filter="customFilter"
-                      color="accent"
-                      item-text="nombre"
-                      label="Estados"
-                      required
-                      :rules="selectRules"
-                      return-object
-                      no-data-text="No existen estados"
-                      outlined
-                      v-show="enableEstado"
-                    ></v-autocomplete>
-                    <v-menu
-                      ref="menud"
-                      v-model="menud"
-                      :close-on-content-click="false"
-                      :nudge-right="40"
-                      :return-value.sync="timed"
-                      transition="scale-transition"
-                      offset-y
-                      max-width="290px"
-                      min-width="290px"
-                    >
-                      <template v-slot:activator="{ on, attrs }">
-                        <v-text-field
-                          v-model="editedItem.timed"
-                          label="Duración Cita"
-                          prepend-icon="mdi-clock-time-four-outline"
-                          hint="Hora:Minuto:Segundo formato"
-                          readonly
-                          :rules="fraccionRequired"
-                          v-bind="attrs"
-                          v-on="on"
+                    <v-row>
+                      <v-col>
+                        <v-autocomplete
+                          v-model="editedItem.medico"
+                          item-value="medicoId"
+                          :items="medicos"
+                          :filter="customFilter2"
+                          color="accent"
+                          item-text="nombreCompleto"
+                          label="Medico"
                           required
+                          :rules="selectRules"
+                          return-object
+                          no-data-text="No existen medicos"
                           outlined
-                        ></v-text-field>
-                      </template>
-                      <v-time-picker
-                        v-if="menud"
-                        v-model="editedItem.timed"
-                        required
-                        full-width
-                        @click:minute="$refs.menud.save(timed)"
-                        format="24hr"
-                      ></v-time-picker>
-                    </v-menu>
-
+                        ></v-autocomplete>
+                      </v-col>
+                      <v-col>
+                        <v-menu
+                          ref="menud"
+                          v-model="menud"
+                          :close-on-content-click="false"
+                          :nudge-right="40"
+                          :return-value.sync="timed"
+                          transition="scale-transition"
+                          offset-y
+                          max-width="290px"
+                          min-width="290px"
+                        >
+                          <template v-slot:activator="{ on, attrs }">
+                            <v-text-field
+                              v-model="editedItem.timed"
+                              label="Duración Cita"
+                              prepend-icon="mdi-clock-time-four-outline"
+                              hint="Hora:Minuto:Segundo formato"
+                              readonly
+                              :rules="fraccionRequired"
+                              v-bind="attrs"
+                              v-on="on"
+                              required
+                              outlined
+                            ></v-text-field>
+                          </template>
+                          <v-time-picker
+                            v-if="menud"
+                            v-model="editedItem.timed"
+                            required
+                            full-width
+                            @click:minute="$refs.menud.save(timed)"
+                            format="24hr"
+                          ></v-time-picker>
+                        </v-menu>
+                      </v-col>
+                    </v-row>
                     <v-row>
                       <v-col>
                         <v-menu
@@ -249,6 +245,56 @@
                         </v-menu>
                       </v-col>
                     </v-row>
+                    <v-autocomplete
+                      v-model="editedItem.estado"
+                      item-value="estadoId"
+                      :items="estados"
+                      :filter="customFilter"
+                      color="accent"
+                      item-text="nombre"
+                      label="Estados"
+                      required
+                      :rules="selectRules"
+                      return-object
+                      no-data-text="No existen estados"
+                      outlined
+                      v-show="enableEstado"
+                    ></v-autocomplete>
+                    <v-textarea
+                      background-color="amber lighten-4"
+                      v-model="editedItem.diagnostico"
+                      color="black"
+                      label="Diagnostico"
+                      required
+                      v-show="enableEstado"
+                      outlined
+                    ></v-textarea>
+                    <v-switch
+                      v-model="dialogExamenes"
+                      label="Panel examenes y recetas"
+                      color="primary"
+                      @change="updatePedidoByCita(dialogExamenes)"
+                    ></v-switch>
+                    <!-- <div class="text-center">
+                      <v-btn
+                    class="ma-2"
+                    color="lime"
+                    @click="dialogExamen"
+                    v-show="enableEstado"
+                  >
+                    Pedido de Examenes
+                  </v-btn>
+
+                  <v-btn 
+                    class="ma-2" 
+                    color="deep" 
+                    @click="dialogReceta"
+                    v-show="enableEstado">
+                    Receta Medicamentos
+                  </v-btn>
+                    </div> -->
+                  <!-- <Pedidos v-show="dialogExamenes"></Pedidos> -->
+                  <menuExtraCita v-show="dialogExamenes" ref="menuExtraCita"></menuExtraCita>
                   </v-form>
                 </v-card-text>
                 <v-card-actions>
@@ -263,6 +309,7 @@
                   <v-btn text color="teal accent-4" @click="cerrar">
                     Cancelar
                   </v-btn>
+                  
                   <v-btn
                     color="red"
                     icon
@@ -274,6 +321,7 @@
                 </v-card-actions>
               </v-card>
             </v-dialog>
+
             <v-dialog v-model="dialogDelete" max-width="500px">
               <v-card>
                 <v-card-title class="text-h5"
@@ -292,6 +340,25 @@
                 </v-card-actions>
               </v-card>
             </v-dialog>
+
+            <!-- <v-dialog v-model="dialogExamenes" max-width="600px">
+              <v-card>
+                <v-card-text>
+                  <v-spacer></v-spacer>
+                  <Pedidos></Pedidos>
+                </v-card-text>
+              </v-card>
+            </v-dialog>
+
+            <v-dialog v-model="dialogRecetas" max-width="600px">
+              <v-card>
+                <v-card-text>
+                  <v-spacer></v-spacer>
+                  <Pedidos></Pedidos>
+                </v-card-text>
+              </v-card>
+            </v-dialog> -->
+
           </v-toolbar>
         </v-sheet>
         <v-sheet height="600">
@@ -327,7 +394,15 @@
 <script>
 import axios from "axios";
 import moment from "moment";
+// import Recetas from "./Recetas";
+// import Pedidos from "./Pedidos";
+import MenuExtraCita from "./MenuExtraCita";
 export default {
+  components: {
+    // Recetas,
+    // Pedidos,
+    'menuExtraCita':MenuExtraCita
+  },
   data: (vm) => ({
     today: new Date(),
     focus: "",
@@ -338,6 +413,8 @@ export default {
     menu2: false,
     valid: true,
     dialogDelete: false,
+    dialogExamenes: false,
+    dialogRecetas: false,
     typeToLabel: {
       month: "Mes",
       week: "Semana",
@@ -379,6 +456,7 @@ export default {
       time: moment().format("H:mm:ss"),
       timed: "01:00:00",
       fechaInicio: moment().format("YYYY-MM-DD"),
+      diagnostico: "",
     },
     editedItem: {
       motivo: "",
@@ -391,6 +469,7 @@ export default {
       time: moment().format("H:mm:ss"),
       timed: "01:00:00",
       fechaInicio: moment().format("YYYY-MM-DD"),
+      diagnostico: "",
     },
     selectedEvent: {},
     selectedElement: null,
@@ -417,29 +496,41 @@ export default {
     fechaMasFraccion: null,
     convHoraInterger: null,
     editedIndex: -1,
-    isAdministrador:false,
+    isAdministrador: false,
     isPaciente: false,
     isMedico: false,
-    isAuxiliar:false,
-    idPersona:""
+    isAuxiliar: false,
+    idPersona: "",
   }),
   mounted() {
     this.statesRoles = this.$store.state.roles;
-    this.isAdministrador = this.statesRoles.some((item)=>item.nombre == "ADMINISTRADOR") ; 
-    this.isPaciente = this.statesRoles.some((item)=>item.nombre == "PACIENTE") ; 
-    this.isMedico = this.statesRoles.some((item)=>item.nombre == "MEDICO") ; 
-    this.isAuxiliar = this.statesRoles.some((item)=>item.nombre == "AUXILIAR") ; 
-    console.log("entra al mounted")
+    this.isAdministrador = this.statesRoles.some(
+      (item) => item.nombre == "ADMINISTRADOR"
+    );
+    this.isPaciente = this.statesRoles.some(
+      (item) => item.nombre == "PACIENTE"
+    );
+    this.isMedico = this.statesRoles.some((item) => item.nombre == "MEDICO");
+    this.isAuxiliar = this.statesRoles.some(
+      (item) => item.nombre == "AUXILIAR"
+    );
+    console.log("entra al mounted");
     this.$refs.calendar.checkChange();
   },
   created() {
     this.statesRoles = this.$store.state.roles;
     this.idPersona = this.$store.state.id;
-    this.isAdministrador = this.statesRoles.some((item)=>item.nombre == "ADMINISTRADOR") ; 
-    this.isPaciente = this.statesRoles.some((item)=>item.nombre == "PACIENTE") ; 
-    this.isMedico = this.statesRoles.some((item)=>item.nombre == "MEDICO") ; 
-    this.isAuxiliar = this.statesRoles.some((item)=>item.nombre == "AUXILIAR") ; 
-    console.log("entra al created")
+    this.isAdministrador = this.statesRoles.some(
+      (item) => item.nombre == "ADMINISTRADOR"
+    );
+    this.isPaciente = this.statesRoles.some(
+      (item) => item.nombre == "PACIENTE"
+    );
+    this.isMedico = this.statesRoles.some((item) => item.nombre == "MEDICO");
+    this.isAuxiliar = this.statesRoles.some(
+      (item) => item.nombre == "AUXILIAR"
+    );
+    console.log("entra al created");
     this.getEvents();
     this.getEspecialidades();
     this.getInvolucrados();
@@ -451,6 +542,10 @@ export default {
     //   console.log(a);
     //   this.colorS = a.color;
     // },
+    updatePedidoByCita(value){
+      console.log("actualizar pedido de cita:", value)
+      this.$refs.menuExtraCita.defaultTabs(value);
+    },
     async guardarCita() {
       try {
         if (this.editedIndex > -1) {
@@ -468,6 +563,7 @@ export default {
               pacienteId: this.editedItem.paciente.id,
               medicoId: this.editedItem.medico.id,
               especialidadId: this.editedItem.especialidad.id,
+              diagnostico: this.editedItem.diagnostico,
             };
             console.log(cita);
             await axios
@@ -477,9 +573,9 @@ export default {
               )
               .then((result) => {
                 this.editedItem = result.data;
-                if(result.data !== null){
-                    this.events=[];
-                    this.getEvents();
+                if (result.data !== null) {
+                  this.events = [];
+                  this.getEvents();
                 }
                 //Object.assign(this.events[this.editedIndex], this.editedItem);
               });
@@ -487,8 +583,10 @@ export default {
         } else {
           if (this.$refs.form.validate()) {
             console.log(this.editedItem);
-            let estadoDefault= this.estados.filter((item) => item.nombre ==="REGISTRADA")
-            console.log("item estado default: " ,estadoDefault);
+            let estadoDefault = this.estados.filter(
+              (item) => item.nombre === "REGISTRADA"
+            );
+            console.log("item estado default: ", estadoDefault);
             let newCita = {
               motivo: this.editedItem.motivo,
               detalle: this.editedItem.detalle,
@@ -504,9 +602,9 @@ export default {
               .post("http://localhost:3000/api/v1/citas", newCita)
               .then((result) => {
                 console.log(result.data);
-                if(result.data !== null){
-                    this.events=[];
-                    this.getEvents();
+                if (result.data !== null) {
+                  this.events = [];
+                  this.getEvents();
                 }
               });
           }
@@ -518,6 +616,7 @@ export default {
     },
     cerrar() {
       this.dialog = false;
+      this.dialogExamenes = false;
       this.$nextTick(() => {
         this.editedItem = Object.assign({}, this.defaultItem);
         this.editedIndex = -1;
@@ -542,7 +641,6 @@ export default {
     },
     async getInvolucrados() {
       try {
-         
         axios.get("http://localhost:3000/api/v1/personas").then((result) => {
           let res = result.data;
           let roles = [];
@@ -555,21 +653,25 @@ export default {
             roles = item.roles;
             rolPaciente = roles.some((rol) => rol.nombre === "PACIENTE");
             if (rolPaciente && item.activo) {
-              if(this.isPaciente && !this.isAdministrador && !this.isMedico && !this.isAuxiliar ){
-                if(this.idPersona === item.id){
-                  console.log ("entra en paciente ")
-                  console.log (item)
+              if (
+                this.isPaciente &&
+                !this.isAdministrador &&
+                !this.isMedico &&
+                !this.isAuxiliar
+              ) {
+                if (this.idPersona === item.id) {
+                  console.log("entra en paciente ");
+                  console.log(item);
                   item.nombreCompleto = item.nombres + " " + item.apellidos;
                   item.pacienteId = item.id;
-                return item;
-                }                
-              }else{
-                console.log ("entra en otro rol")
+                  return item;
+                }
+              } else {
+                console.log("entra en otro rol");
                 item.nombreCompleto = item.nombres + " " + item.apellidos;
                 item.pacienteId = item.id;
                 return item;
               }
-              
             }
           });
           this.medicos = res.filter((item) => {
@@ -644,15 +746,27 @@ export default {
         });
         console.log(events);
         events.forEach((event) => {
-          if(this.isPaciente && !this.isAdministrador && !this.isMedico && !this.isAuxiliar ){
-            if(this.idPersona === event.pacienteId){
+          if (
+            this.isPaciente &&
+            !this.isAdministrador &&
+            !this.isMedico &&
+            !this.isAuxiliar
+          ) {
+            if (this.idPersona === event.pacienteId) {
               this.agregarEventos(event);
             }
-          }else if( !this.isAdministrador && this.isMedico && !this.isAuxiliar){
-            if(this.idPersona === event.medicoId || this.idPersona === event.pacienteId){
+          } else if (
+            !this.isAdministrador &&
+            this.isMedico &&
+            !this.isAuxiliar
+          ) {
+            if (
+              this.idPersona === event.medicoId ||
+              this.idPersona === event.pacienteId
+            ) {
               this.agregarEventos(event);
             }
-          }else{
+          } else {
             this.agregarEventos(event);
           }
         });
@@ -661,36 +775,38 @@ export default {
         console.log(error);
       }
     },
-    agregarEventos(event){
+    agregarEventos(event) {
       this.getConvertHoraInterger(event.fraccion);
-          let hora = parseInt(event.hora.substring(0, 2));
-          let min = parseInt(event.hora.substring(3, 5));
+      let hora = parseInt(event.hora.substring(0, 2));
+      let min = parseInt(event.hora.substring(3, 5));
 
-          let fechaInicio = moment(new Date(event.fechaInicio)).format(
-            "YYYY-MM-DD  H:mm:ss"
-          );
-          let fechaIncioFormat = new Date(fechaInicio);
-          fechaIncioFormat.setHours(hora, min, 0);
-          let fechaMasFraccion =
-            new Date(fechaIncioFormat).getTime() +
-            this.convHoraInterger * 60 * 60 * 1000;
-          this.events.push({
-            id: event.id,
-            name: event.motivo +"("+event.id+")" ,
-            detalle: event.detalle,
-            start: moment(fechaIncioFormat).format("YYYY-MM-DD H:mm:ss"),
-            end: moment(fechaMasFraccion).format("YYYY-MM-DD H:mm:ss"),
-            timed: false,
-            especialidadId: event.especialidadId,
-            pacienteId: event.pacienteId,
-            medicoId: event.medicoId,
-            date: moment(fechaIncioFormat).format("YYYY-MM-DD"),
-            motivo: event.motivo,
-            hora: event.hora,
-            fraccion: event.fraccion,
-            estadoId: event.estadoId,
-            color: this.color,
-          });
+      let fechaInicio = moment(new Date(event.fechaInicio)).format(
+        "YYYY-MM-DD  H:mm:ss"
+      );
+      let fechaIncioFormat = new Date(fechaInicio);
+      fechaIncioFormat.setHours(hora, min, 0);
+      let fechaMasFraccion =
+        new Date(fechaIncioFormat).getTime() +
+        this.convHoraInterger * 60 * 60 * 1000;
+        console.log(event);
+      this.events.push({
+        id: event.id,
+        name: event.motivo + "(" + event.id + ")",
+        detalle: event.detalle,
+        start: moment(fechaIncioFormat).format("YYYY-MM-DD H:mm:ss"),
+        end: moment(fechaMasFraccion).format("YYYY-MM-DD H:mm:ss"),
+        timed: false,
+        especialidadId: event.especialidadId,
+        pacienteId: event.pacienteId,
+        medicoId: event.medicoId,
+        date: moment(fechaIncioFormat).format("YYYY-MM-DD"),
+        motivo: event.motivo,
+        hora: event.hora,
+        fraccion: event.fraccion,
+        estadoId: event.estadoId,
+        color: this.color,
+        diagnostico: event.diagnostico,
+      });
     },
     viewDay({ date }) {
       this.focus = date;
@@ -718,6 +834,12 @@ export default {
         this.editedIndex = -1;
       }); */
     },
+    dialogExamen() {
+      this.dialogExamenes = true;
+    },
+    dialogReceta(){
+      this.dialogRecetas = true;
+    },
     async deleteItemConfirm() {
       await axios
         .delete(`http://localhost:3000/api/v1/citas/${this.editedItem.id}`)
@@ -737,7 +859,8 @@ export default {
     },
 
     showEvent({ nativeEvent, event }) {
-      this.enableEstado =true;
+      this.$store.commit('setIdCita', event.id);
+      this.enableEstado = true;
       console.log("evento click");
       console.log(event);
       this.editedIndex = event.id;
@@ -752,14 +875,13 @@ export default {
         time: event.hora,
         timed: event.fraccion,
         id: event.id,
+        diagnostico : event.diagnostico
       };
       console.log("valor de editedItem: ", this.editedItem);
       this.dialog = true;
       console.log(nativeEvent);
-     
     },
     updateRange({ start, end }) {
-     
       this.start = start;
       this.end = end;
       this.color = "#232";
