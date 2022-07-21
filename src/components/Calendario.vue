@@ -550,8 +550,6 @@ export default {
       try {
         if (this.editedIndex > -1) {
           if (this.$refs.form.validate()) {
-            console.log("ver events", this.events);
-            console.log("ver editedIndex", this.editedIndex);
             //let citaId = this.events[this.editedIndex].id;
             let cita = {
               motivo: this.editedItem.motivo,
@@ -564,6 +562,7 @@ export default {
               medicoId: this.editedItem.medico.id,
               especialidadId: this.editedItem.especialidad.id,
               diagnostico: this.editedItem.diagnostico,
+              color: this.editedItem.especialidad.color,
             };
             console.log(cita);
             await axios
@@ -597,6 +596,7 @@ export default {
               pacienteId: this.editedItem.paciente.id,
               medicoId: this.editedItem.medico.id,
               especialidadId: this.editedItem.especialidad.id,
+              color:this.editedItem.especialidad.color,
             };
             await axios
               .post("http://localhost:3000/api/v1/citas", newCita)
@@ -804,7 +804,7 @@ export default {
         hora: event.hora,
         fraccion: event.fraccion,
         estadoId: event.estadoId,
-        color: this.color,
+        color: event.color,
         diagnostico: event.diagnostico,
       });
     },
@@ -859,6 +859,7 @@ export default {
     },
 
     showEvent({ nativeEvent, event }) {
+      this.valid= true;
       this.$store.commit('setIdCita', event.id);
       this.enableEstado = true;
       console.log("evento click");

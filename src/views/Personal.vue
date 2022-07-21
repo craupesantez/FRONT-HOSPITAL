@@ -18,12 +18,16 @@
             </v-btn>
           </template>
           <v-card max-width="700">
-            <v-card-title>
-              <span class="text-h5">{{ formTitle }}</span>
-            </v-card-title>
+            <v-toolbar flat color="info darken-1">
+              <v-icon>mdi-account-hard-hat</v-icon>
+              <v-toolbar-title class="font-weight-light">
+                {{ formTitle }}
+              </v-toolbar-title>
+              <v-spacer></v-spacer>
+            </v-toolbar>
             <v-card-text>
               <v-row>
-                <v-col class="d-flex" cols="12" sm="6">
+                <v-col class="d-flex mt-2" cols="12" sm="6">
                   <v-text-field
                     v-model="editedItem.nombres"
                     :rules="[
@@ -38,7 +42,7 @@
                   >
                   </v-text-field>
                 </v-col>
-                <v-col class="d-flex" cols="12" sm="6">
+                <v-col class="d-flex mt-2" cols="12" sm="6">
                   <v-text-field
                     v-model="editedItem.apellidos"
                     :rules="[
@@ -88,7 +92,7 @@
                     :filter="customFilter"
                     color="accent"
                     item-text="nombre"
-                    label="Genero"
+                    label="Género"
                     required
                     outlined
                   ></v-autocomplete>
@@ -312,7 +316,7 @@
       El paciente fue registrado
     </v-snackbar>
     <v-snackbar v-model="noSaved" :timeout="2000" absolute bottom left>
-      Identificacion o correo ya se encuentran registradas identificacion:{{
+      Identificación o correo ya se encuentran registradas identificacion:{{
         existeIdentificacion
       }}
       correo:{{ existeCorreo }}
@@ -380,11 +384,11 @@ export default {
       },
       { text: "Nombres", value: "nombres" },
       { text: "Apellidos", value: "apellidos" },
-      { text: "Genero", value: "genero.nombre" },
+      { text: "Género", value: "genero.nombre" },
       { text: "Edad", value: "edad" },
-      { text: "Identificacion", value: "identificacion" },
+      { text: "Identificación", value: "identificacion" },
       { text: "Correo", value: "correo" },
-      { text: "Telefono", value: "telefono" },
+      { text: "Teléfono", value: "telefono" },
       // { text: "Roles", value: "`${roles[0].nombre} -${roles[1].nombre}`" },
       { text: "Roles", value: "rolesConcat" },
       { text: "Acciones", value: "actions", sortable: false },

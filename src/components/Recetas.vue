@@ -18,28 +18,13 @@
             </v-btn>
           </template>
           <v-card>
-            <v-card-title>
-              <span class="text-h5">{{ formTitle }}</span>
-            </v-card-title>
+            <v-toolbar flat color="info darken-1">
+              <v-toolbar-title class="font-weight-light">
+                {{ formTitle }}
+              </v-toolbar-title>
+              <v-spacer></v-spacer>
+            </v-toolbar>
             <v-card-text>
-              <!-- <v-row> -->
-                <!-- <v-col class="d-flex" cols="12" sm="6">
-                  <v-autocomplete
-                    v-model="editedItem.cita"
-                    item-value="citaId"
-                    :items="citas"
-                    :filter="customFilter"
-                    color="accent"
-                    item-text="id"
-                    label="Cita"
-                    required
-                    :rules="selectRules"
-                    return-object
-                    no-data-text="No existen citas"
-                    outlined
-                  ></v-autocomplete>
-                </v-col> -->
-                <!-- <v-col class="d-flex" cols="12" sm="6"> -->
                   <v-autocomplete
                     v-model="editedItem.medicamento"
                     item-value="medicamentoId"
@@ -53,6 +38,7 @@
                     return-object
                     no-data-text="No existen examenes"
                     outlined
+                    class="mt-2"
                   ></v-autocomplete>
                 <!-- </v-col>
                 <v-col class="d-flex" cols="12" sm="6"> -->
@@ -170,6 +156,8 @@ export default {
   }),
   mounted() {
     this.getCitas();
+    this.getMedicamentos();
+    this.getRecetas();
   },
   computed: {
     formTitle() {

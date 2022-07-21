@@ -50,11 +50,11 @@
         <v-tab href="#Registro"> Registro de Paciente </v-tab>
       </v-tabs>
     </div> -->
-    <Navbar v-if="!['login', 'registrar-paciente'].includes($route.name)"></Navbar>
+    <Navbar v-if="!['login', 'registrar-paciente', 'pruebas'].includes($route.name)"></Navbar>
     <v-main class="ma-4">
       <router-view></router-view>
     </v-main>
-    <Footer v-if="!['login', 'registrar-paciente'].includes($route.name)"></Footer>
+    <Footer v-if="!['login', 'registrar-paciente', 'pruebas'].includes($route.name)"></Footer>
 
     <!-- <v-main>
       <router-view />
@@ -104,6 +104,11 @@ export default {
     //    this.$store.commit('setVisibleNavBar', false)
     // }
   },
+  // watch:{
+  //   $route(to, from) {
+  //           document.title = to.meta.title || 'Hospital del Oro';
+  //       },
+  // }
 };
 </script>
 <style>

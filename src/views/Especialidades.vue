@@ -18,12 +18,16 @@
             </v-btn>
           </template>
           <v-card>
-            <v-card-title>
-              <span class="text-h5">{{ formTitle }}</span>
-            </v-card-title>
+            <v-toolbar flat color="info darken-1">
+              <v-icon>mdi-medal</v-icon>
+              <v-toolbar-title class="font-weight-light">
+                {{ formTitle }}
+              </v-toolbar-title>
+              <v-spacer></v-spacer>
+            </v-toolbar>
             <v-card-text>
               <v-row>
-                <v-col class="d-flex" cols="12" sm="6">
+                <v-col class="d-flex mt-2" cols="12" sm="6">
                   <v-text-field
                     v-model="editedItem.nombre"
                     :rules="[
@@ -38,10 +42,26 @@
                   >
                   </v-text-field>
                 </v-col>
+                <v-col class="d-flex mt-2" cols="12" sm="6">
+                  <v-text-field
+                    v-model="editedItem.color"
+                    :rules="[
+                      () =>
+                        !!editedItem.color || 'El color es requerido',
+                    ]"
+                    :error-messages="errorMessages"
+                    color="accent"
+                    type="color"
+                    label="Color de la especialidad"
+                    outlined
+                  >
+                  </v-text-field>
+                </v-col>
                 <v-col class="d-flex" cols="12" sm="6">
                   <v-checkbox
                     v-model="editedItem.activo"
                     :label="`Estado`"
+                    outlined
                   ></v-checkbox>
                 </v-col>
                 <v-col class="d-flex" cols="12" sm="6">
@@ -73,7 +93,8 @@
                     outlined
                   >
                   </v-text-field>
-                </v-col>
+                  </v-col>
+                  
               </v-row>
             </v-card-text>
             <v-card-actions>
@@ -133,6 +154,7 @@ export default {
       { text: "Activo", value: "activo" },
       { text: "Registrado por:", value: "usuarioRegistro" },
       { text: "Actualizado por:", value: "usuarioActualizo" },
+      { text: "Color", value: "color" },
       { text: "Acciones", value: "actions", sortable: false },
     ],
     especialidades: [],
@@ -141,13 +163,15 @@ export default {
       nombre: "",
       activo: true,
       usuarioRegistro: localStorage.getItem("username").replace('"','').replace('"',''),
-      usuarioActualizo: localStorage.getItem("username").replace('"','').replace('"','')
+      usuarioActualizo: localStorage.getItem("username").replace('"','').replace('"',''),
+      color:""
     },
     defaultItem: {
       nombre: "",
       activo: true,
        usuarioRegistro: localStorage.getItem("username").replace('"','').replace('"',''),
-       usuarioActualizo: localStorage.getItem("username").replace('"','').replace('"','')
+       usuarioActualizo: localStorage.getItem("username").replace('"','').replace('"',''),
+       color:""
     },
   }),
 

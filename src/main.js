@@ -9,10 +9,16 @@ import axios from 'axios'
 import VueAxios from 'vue-axios'
 import VueTextareaAutosize from 'vue-textarea-autosize'
 import moment from 'moment'
+import Vuesax from 'vuesax'
+import 'vuesax/dist/vuesax.css' //Vuesax styles
 
 Vue.prototype.moment = moment
 
 Vue.use(VueAxios, axios)
+
+Vue.use(Vuesax, {
+  // options here
+})
 
 Vue.config.productionTip = false
 

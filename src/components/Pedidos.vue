@@ -5,6 +5,11 @@
     sort-by="id"
     class="elevation-1"
   >
+    <template #item.file="{ value }">
+            <a target="_blank" :href="value">
+              enlace
+            </a>
+    </template>
     <template v-slot:top>
       <v-toolbar flat>
         <v-toolbar-title>Pedidos Examenes</v-toolbar-title>
@@ -13,46 +18,65 @@
 
         <v-dialog v-model="dialog" max-width="500px">
           <template v-slot:activator="{ on, attrs }">
-            <v-btn color="primary" dark class="mb-2" v-bind="attrs" v-on="on" v-show="enableCUD">
+            <v-btn
+              color="primary"
+              dark
+              class="mb-2"
+              v-bind="attrs"
+              v-on="on"
+              v-show="enableCUD"
+            >
               Nuevo Pedido
             </v-btn>
           </template>
           <v-card>
-            <v-card-title>
-              <span class="text-h5">{{ formTitle }}</span>
-            </v-card-title>
+            <v-toolbar flat color="info darken-1">
+              <v-toolbar-title class="font-weight-light">
+                {{ formTitle }}
+              </v-toolbar-title>
+              <v-spacer></v-spacer>
+            </v-toolbar>
             <v-card-text>
-                  <v-autocomplete
-                    v-model="editedItem.examen"
-                    item-value="examenId"
-                    :items="examenes"
-                    :filter="customFilter"
-                    color="accent"
-                    item-text="nombre"
-                    label="Examen"
-                    required
-                    :rules="selectRules"
-                    return-object
-                    no-data-text="No existen examenes"
-                    outlined
-                  ></v-autocomplete>
-                <!-- </v-col> -->
-                <!-- <v-col class="d-flex" cols="12" sm="6"> -->
-                  <v-text-field
-                    v-model="editedItem.resultado"
-                    :rules="[
-                      () =>
-                        !!editedItem.resultado ||
-                        'Los requisitos son requerido',
-                    ]"
-                    :error-messages="errorMessages"
-                    color="accent"
-                    label="Resultado"
-                    required
-                    outlined
-                  >
-                  </v-text-field>
-                <!-- </v-col> -->
+              <v-autocomplete
+                v-model="editedItem.examen"
+                item-value="examenId"
+                :items="examenes"
+                :filter="customFilter"
+                color="accent"
+                item-text="nombre"
+                label="Examen"
+                required
+                :rules="selectRules"
+                return-object
+                no-data-text="No existen examenes"
+                outlined
+                class="mt-2"
+              ></v-autocomplete>
+              <!-- </v-col> -->
+              <!-- <v-col class="d-flex" cols="12" sm="6"> -->
+              <v-text-field
+                v-model="editedItem.resultado"
+                :rules="[
+                  () =>
+                    !!editedItem.resultado || 'Los requisitos son requerido',
+                ]"
+                :error-messages="errorMessages"
+                color="accent"
+                label="Resultado"
+                required
+                outlined
+              >
+              </v-text-field>
+              <v-text-field
+                v-model="editedItem.detalleFile"
+                :error-messages="errorMessages"
+                color="accent"
+                label="Detalle del archivo"
+                outlined
+              >
+              </v-text-field>
+              <v-btn @click="openUploadModal">Upload files</v-btn>
+              <!-- </v-col> -->
               <!-- </v-row> -->
             </v-card-text>
             <v-card-actions>
@@ -86,8 +110,12 @@
       </v-toolbar>
     </template>
     <template v-slot:[`item.actions`]="{ item }">
-      <v-icon small class="mr-2" @click="editItem(item)" v-show="enableCUD"> mdi-pencil </v-icon>
-      <v-icon small @click="deleteItem(item)" v-show="enableCUD"> mdi-delete </v-icon>
+      <v-icon small class="mr-2" @click="editItem(item)">
+        mdi-pencil
+      </v-icon>
+      <v-icon small @click="deleteItem(item)" v-show="enableCUD">
+        mdi-delete
+      </v-icon>
     </template>
     <template v-slot:no-data>
       <v-btn color="primary" @click="getPedidos"> Reset </v-btn>
@@ -113,24 +141,30 @@ export default {
       { text: "N° Cita", value: "citaId" },
       { text: "Examen", value: "nombreExamen" },
       { text: "resultado", value: "resultado" },
+      { text: "Detalle del archivo", value: "detalleFile" },
+      { text: "Archivo", value: "file" },
       //   { text: "Activo", value: "activo" },
       { text: "Acciones", value: "actions", sortable: false },
     ],
     pedidos: [],
     examenes: [],
     citas: [],
-    idCita:null,
+    idCita: null,
     editedIndex: -1,
     selectRules: [(v) => !!v || "Es requerido"],
     editedItem: {
-      cita:[],
+      cita: [],
       examen: [],
       resultado: "",
+      file: "",
+      detalleFile: "",
     },
     defaultItem: {
       cita: [],
       examen: [],
       resultado: "",
+      file: "",
+      detalleFile: "",
     },
     statesRoles: [],
     isAdministrador: false,
@@ -141,6 +175,8 @@ export default {
   }),
   mounted() {
     this.getCitas();
+    this.getExamenes();
+    this.getPedidos();
   },
   computed: {
     formTitle() {
@@ -158,9 +194,22 @@ export default {
   },
 
   methods: {
+    openUploadModal() {
+      window.cloudinary
+        .openUploadWidget(
+          { cloud_name: "dfazj3e00", upload_preset: "prqwmb5u" },
+          (error, result) => {
+            if (!error && result && result.event === "success") {
+              console.log("Done uploading..: ", result.info);
+              this.editedItem.file= result.info.url;
+            }
+          }
+        )
+        .open();
+    },
     async getPedidos() {
       try {
-        this.idCita =this.$store.state.idCita;
+        this.idCita = this.$store.state.idCita;
         console.log("idCita: " + this.idCita);
         await axios
           .get("http://localhost:3000/api/v1/citas/pedidos")
@@ -168,17 +217,17 @@ export default {
             // this.catalogos = result.data;
             let res = result.data;
             // this.pedidos= res;
-            this.pedidos = res.filter(item=>{
-              if(item.citaId === this.idCita){
-                this.examenes.forEach((examen)=>{
-                  if(examen.id === item.examenId){
+            this.pedidos = res.filter((item) => {
+              if (item.citaId === this.idCita) {
+                this.examenes.forEach((examen) => {
+                  if (examen.id === item.examenId) {
                     item.nombreExamen = examen.nombre;
                   }
-                });  
+                });
                 return item;
               }
             });
-            console.log("pedidos prueba: " , this.pedidos);
+            console.log("pedidos prueba: ", this.pedidos);
           });
       } catch (error) {
         console.log(error);
@@ -193,11 +242,11 @@ export default {
             // this.catalogos = result.data;
             let res = result.data;
             this.examenes = res.filter((item) => {
-              if(item.activo === true){
-                item.examenId= item.id;
+              if (item.activo === true) {
+                item.examenId = item.id;
                 return item;
               }
-              });
+            });
             console.log(this.examenes);
           });
       } catch (error) {
@@ -208,8 +257,8 @@ export default {
       try {
         await axios.get("http://localhost:3000/api/v1/citas").then((result) => {
           let res = result.data;
-          this.citas = res.filter((item)=>{
-            item.citaId = item.id; 
+          this.citas = res.filter((item) => {
+            item.citaId = item.id;
           });
           console.log(this.citas);
         });
@@ -225,11 +274,13 @@ export default {
     },
     editItem(item) {
       this.editedIndex = this.pedidos.indexOf(item);
-      this.editedItem ={
-        cita: {citaId: item.citaId},
-        examen: {examenId: item.examenId},
+      this.editedItem = {
+        cita: { citaId: item.citaId },
+        examen: { examenId: item.examenId },
         id: item.id,
         resultado: item.resultado,
+        file: item.file,
+        detalleFile: item.detalleFile,
       };
       console.log(this.editedItem);
       this.dialog = true;
@@ -276,13 +327,12 @@ export default {
       });
     },
 
-    defaultPedidoHijo(value){
-      if(value){
+    defaultPedidoHijo(value) {
+      if (value) {
         this.getPedidos();
-      }else{
-        this.pedidos=[];
+      } else {
+        this.pedidos = [];
       }
-      
     },
     async save() {
       try {
@@ -290,19 +340,23 @@ export default {
           let idPedido = this.pedidos[this.editedIndex].id;
           delete this.editedItem.id;
           let editExamen;
-          if(this.editedItem.resultado){
-            editExamen ={
+          if (this.editedItem.resultado) {
+            editExamen = {
               citaId: this.editedItem.cita.citaId,
               examenId: this.editedItem.examen.examenId,
-              resultado: this.editedItem.resultado
+              resultado: this.editedItem.resultado,
+              file: this.editedItem.file,
+              detalleFile: this.editedItem.detalleFile,
             };
-          }else{
-            editExamen ={
+          } else {
+            editExamen = {
               citaId: this.editedItem.cita.citaId,
               examenId: this.editedItem.examen.examenId,
+              file: this.editedItem.file,
+              detalleFile: this.editedItem.detalleFile,
             };
           }
-          
+
           await axios
             .patch(
               `http://localhost:3000/api/v1/citas/update-examen/${idPedido}`,
@@ -320,12 +374,16 @@ export default {
               citaId: this.idCita,
               examenId: this.editedItem.examen.id,
               resultado: this.editedItem.resultado,
+              file: this.editedItem.file,
+              detalleFile: this.editedItem.detalleFile,
             };
             console.log(newPedido);
-          }else{
+          } else {
             newPedido = {
               citaId: this.idCita,
               examenId: this.editedItem.examen.id,
+              file: this.editedItem.file,
+              detalleFile: this.editedItem.detalleFile,
             };
           }
           await axios
@@ -345,7 +403,7 @@ export default {
     },
   },
   created() {
-     this.statesRoles = this.$store.state.roles;
+    this.statesRoles = this.$store.state.roles;
     this.idPersona = this.$store.state.id;
     this.isAdministrador = this.statesRoles.some(
       (item) => item.nombre == "ADMINISTRADOR"
@@ -357,14 +415,16 @@ export default {
     this.isAuxiliar = this.statesRoles.some(
       (item) => item.nombre == "AUXILIAR"
     );
-    if(this.isPaciente &&
+    if (
+      this.isPaciente &&
       !this.isAdministrador &&
       !this.isMedico &&
-      !this.isAuxiliar){
-        this.enableCUD = false;
-      }else{
-        this.enableCUD = true;
-      }
+      !this.isAuxiliar
+    ) {
+      this.enableCUD = false;
+    } else {
+      this.enableCUD = true;
+    }
     this.getExamenes();
     this.getCitas();
     this.getPedidos();

@@ -27,11 +27,13 @@ const routes = [
   {
     path: '/login',
     name: 'login',
+    meta: { title: 'Login' },
     component: () => import(/* webpackChunkName: "about" */ '../views/Login.vue')
   },
   {
     path: '/registrar-paciente',
     name: 'registrar-paciente',
+    meta: { title: 'Registro de Paciente' },
     component: () => import(/* webpackChunkName: "about" */ '../views/RegistrarPaciente.vue')
   },
   {
@@ -54,57 +56,84 @@ const routes = [
   {
     path: '/pacientes',
     name: 'paciente',
-    meta: { requiresAuth: true },
+    meta: { 
+      requiresAuth: true,
+      title: 'Pacientes'
+     },
     component: () => import(/* webpackChunkName: "about" */ '../views/Pacientes.vue'),
 
   },
   {
     path: '/personal',
     name: 'personal',
-    meta: { requiresAuth: true },
+    meta: { 
+      requiresAuth: true,
+      title:'Personal'
+     },
     component: () => import(/* webpackChunkName: "about" */ '../views/Personal.vue'),
   },
   {
     path: '/roles',
     name: 'roles',
-    meta: { requiresAuth: true },
+    meta: { 
+      requiresAuth: true,
+      title:'Roles'
+     },
     component: () => import(/* webpackChunkName: "about" */ '../views/Roles.vue'),
 
   },
   {
     path: '/especialidades',
     name: 'especialidades',
-    meta: { requiresAuth: true },
+    meta: { 
+      requiresAuth: true,
+      title:'Especialidades'
+     },
     component: () => import(/* webpackChunkName: "about" */ '../views/Especialidades.vue'),
   },
   {
     path: '/catalogos',
     name: 'catalogos',
-    meta: { requiresAuth: true },
+    meta:{ 
+      requiresAuth: true,
+      title:'Catalogos'
+     },
     component: () => import(/* webpackChunkName: "about" */ '../views/Catalogos.vue'),
   },
   {
     path: '/examenes',
     name: 'examenes',
-    meta: { requiresAuth: true },
+    meta: { 
+      requiresAuth: true,
+      title:'Examenes'
+     },
     component: () => import(/* webpackChunkName: "about" */ '../views/Examenes.vue'),
   },
   {
     path: '/medicamentos',
     name: 'medicamentos',
-    meta: { requiresAuth: true },
+    meta: { 
+      requiresAuth: true,
+      title:'Medicamentos'
+     },
     component: () => import(/* webpackChunkName: "about" */ '../views/Medicamentos.vue'),
   },
   {
     path: '/citas',
     name: 'citas',
-    meta: { requiresAuth: true },
+    meta: { 
+      requiresAuth: true,
+      title:'Citas'
+     },
     component: () => import(/* webpackChunkName: "about" */ '../views/Citas.vue'),
   },
   {
     path: '/perfil',
     name: 'perfil',
-    meta: { requiresAuth: true },
+    meta: { 
+      requiresAuth: true,
+      title:'Perfil'
+     },
     component: () => import(/* webpackChunkName: "about" */ '../views/Perfil.vue'),
   }
 ]
@@ -115,6 +144,10 @@ const router = new VueRouter({
   routes
 })
 
+const DEFAULT_TITLE = 'HOSPITAL DEL ORO ';
+router.afterEach((to, from) => {
+    document.title = to.meta.title  || DEFAULT_TITLE;
+});
 router.beforeEach(async (to, from, next) => {
   try {
     const rutaProtegida = to.meta.requiresAuth;

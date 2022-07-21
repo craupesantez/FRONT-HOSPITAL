@@ -6,7 +6,6 @@
           elevation="12" 
           min-width="300" 
           width="600" 
-          color="secondary"
         >
           <!-- <div style="text-align: end">
             <v-card-title>Iniciar Sesión</v-card-title>
@@ -23,20 +22,24 @@
                 :counter="15"
                 label="Usuario"
                 required
+                outlined
               ></v-text-field>
 
               <v-text-field
                 v-model="usuario.contrasenia"
                 :append-icon="show1 ? 'mdi-eye' : 'mdi-eye-off'"
                 :rules="[rules.required, rules.min]"
-                :type="show1 ? 'text' : 'password'"
-                name="input-10-1"
+                type="password"
+                name="input-10-2"
                 label="Contraseña"
                 placeholder="*********"
                 hint="Al menos 8 carácteres"
                 counter
+                color="accent"
+                class="input-group--focused"
                 @click:append="show1 = !show1"
                 required
+                outlined
               ></v-text-field>
               <!-- <v-btn color="success lighten-2" type="submit" :disabled="!valid">
                 Ingresar
@@ -82,7 +85,6 @@ export default {
         min: (v) => v.length >= 8 || "Minimo 10 carácteres",
       },
       valido: true,
-      show1: false,
       valid: true,
     };
   },
@@ -113,6 +115,7 @@ export default {
         await axios
           .post("http://localhost:3000/api/v1/auth/login", this.usuario)
           .then((result) => {
+            console.log(result);
             this.$store.commit('setToken', result.data.token);
             if(result.data.token!==null){
               // this.$store.commit('setVisibleNavBar', true);
@@ -145,7 +148,30 @@ export default {
           });
       } catch (error) {
         console.log(error);
+       this.openNotification(
+            "",
+            2,
+            "No se pudo ingresar",
+            "Estimado usuario, sus datos no son correctos"
+          );
       }
+    },
+    openNotification(position = null, color, titulo, texto) {
+      var c;
+      if (color === 1) c = "primary";
+      else if (color == 2) c = "danger";
+      else if (color == 3) c = "success";
+      else if (color == 4) c = "warn";
+      else c = "rgb(59,222,200)";
+
+      const noti = this.$vs.notification({
+        progress: "auto",
+        color: c,
+        position,
+        title: titulo,
+        text: texto,
+      });
+      console.log(noti);
     },
   },
   created: function () {

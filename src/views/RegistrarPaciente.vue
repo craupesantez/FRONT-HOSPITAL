@@ -15,6 +15,7 @@
       <v-spacer></v-spacer>
     </v-toolbar>
     <v-card-text>
+      <v-form ref="form" v-model="valid" lazy-validatio>
       <v-row>
         <v-col class="d-flex" cols="12" sm="6">
           <v-text-field
@@ -81,7 +82,7 @@
           :filter="customFilter"
           color="accent"
           item-text="nombre"
-          label="Genero"
+          label="Género"
           required
           outlined
         ></v-autocomplete>
@@ -149,6 +150,7 @@
           :rules="emailRules"
           label="Correo"
           outlined
+          required
         >
         </v-text-field>
         </v-col>
@@ -160,6 +162,7 @@
           color="accent"
           label="Usuario"
           outlined
+          required
         >
         </v-text-field>
         </v-col>
@@ -172,23 +175,25 @@
           type="password"
           name="input-10-2"
           color="accent"
-          label="Constraseña"
+          label="Contraseña"
           hint="Minimo 8 caracteres"
+          placeholder="*********"
           counter
-          value="wqfasds"
           class="input-group--focused"
           @click:append="show2 = !show2"
           outlined
+          required
         >
         </v-text-field>
         </v-col>
         
       </v-row>
+    </v-form>
     </v-card-text>
     <v-divider></v-divider>
     <v-card-actions>
       <v-spacer></v-spacer>
-      <v-btn color="success" @click="save"> Guardar </v-btn>
+      <v-btn color="success" @click="save" :disabled="!valid"> Guardar </v-btn>
       <v-btn color="secundary" @click="resetForm"> Limpiar </v-btn>
     </v-card-actions>
     <v-snackbar v-model="hasSaved" :timeout="2000" absolute bottom left>
@@ -205,6 +210,7 @@ export default {
       hasSaved: false,
       isEditing: null,
       model: null,
+      valid: false,
       catalogos: [],
       generos:[],
       tiposIdentificacion: [],
@@ -338,7 +344,6 @@ export default {
           activo: true,
         };
         console.log(newPaciente);
-        this.hasSaved = true;
         let resultado = null;
         await axios
           .post("http://localhost:3000/api/v1/personas", newPaciente)
@@ -347,12 +352,20 @@ export default {
             resultado = result.data;
             if (resultado !== null) {
               console.log(resultado);
+              this.hasSaved = true;
               this.resetForm();
               // this.$router.push({name:'about'});
             }
           });
       } catch (error) {
-        console.log(error);
+        console.log(error.response.data.message);
+        this.openNotification(
+            "",
+            2,
+            "No se pudo registrar",
+            "Estimado usuario, sus datos no son correctos: "+ error.response.data.message 
+          );
+
       }
     },
     formatDate(date) {
@@ -366,6 +379,23 @@ export default {
 
       const [month, day, year] = date.split("/");
       return `${year}-${month.padStart(2, "0")}-${day.padStart(2, "0")}`;
+    },
+    openNotification(position = null, color, titulo, texto) {
+      var c;
+      if (color === 1) c = "primary";
+      else if (color == 2) c = "danger";
+      else if (color == 3) c = "success";
+      else if (color == 4) c = "warn";
+      else c = "rgb(59,222,200)";
+
+      const noti = this.$vs.notification({
+        progress: "auto",
+        color: c,
+        position,
+        title: titulo,
+        text: texto,
+      });
+      console.log(noti);
     },
   },
   created() {

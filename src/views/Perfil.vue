@@ -8,6 +8,12 @@
       <v-spacer></v-spacer>
     </v-toolbar>
     <v-card-text>
+      <v-switch
+        v-model="enablePerfil"
+        label="Habilitar edición"
+        color="primary"
+        @change="updatePedidoByCita(dialogExamenes)"
+      ></v-switch>
       <v-row>
         <v-col class="d-flex" cols="12" sm="6">
           <v-text-field
@@ -20,6 +26,7 @@
             label="Nombres"
             required
             outlined
+            :disabled="!enablePerfil"
           >
           </v-text-field>
         </v-col>
@@ -34,6 +41,7 @@
             label="Apellidos"
             required
             outlined
+            :disabled="!enablePerfil"
           >
           </v-text-field>
         </v-col>
@@ -50,6 +58,7 @@
             return-object
             no-data-text="No existen pacientes"
             outlined
+            :disabled="!enablePerfil"
           ></v-autocomplete>
         </v-col>
         <v-col class="d-flex" cols="12" sm="6">
@@ -65,6 +74,7 @@
             label="Identificación"
             required
             outlined
+            :disabled="!enablePerfil"
           >
           </v-text-field>
         </v-col>
@@ -76,9 +86,10 @@
             :filter="customFilter"
             color="accent"
             item-text="nombre"
-            label="Genero"
+            label="Género"
             required
             outlined
+            :disabled="!enablePerfil"
           ></v-autocomplete>
         </v-col>
         <v-col class="d-flex" cols="12" sm="6">
@@ -100,6 +111,7 @@
                 v-on="on"
                 required
                 outlined
+                :disabled="!enablePerfil"
               ></v-text-field>
             </template>
             <v-date-picker
@@ -119,6 +131,7 @@
             label="Ciudad"
             required
             outlined
+            :disabled="!enablePerfil"
           ></v-autocomplete>
         </v-col>
 
@@ -126,9 +139,10 @@
           <v-text-field
             v-model="editedItem.telefono"
             color="accent"
-            label="Telefono"
+            label="Teléfono"
             required
             outlined
+            :disabled="!enablePerfil"
           >
           </v-text-field>
         </v-col>
@@ -140,6 +154,7 @@
             :rules="emailRules"
             label="Correo"
             outlined
+            :disabled="!enablePerfil"
           >
           </v-text-field>
         </v-col>
@@ -182,7 +197,7 @@
     <v-card-actions>
       <v-spacer></v-spacer>
       <!-- <v-btn color="blue darken-1" text @click="close"> Cancelar </v-btn> -->
-      <v-btn color="blue darken-1" text @click="save"> Guardar </v-btn>
+      <v-btn color="blue warning" text @click="save" :disabled="!enablePerfil"> Guardar </v-btn>
     </v-card-actions>
   </v-card>
   <!-- </v-dialog> -->
@@ -231,6 +246,7 @@ import moment from "moment";
 export default {
   data: (vm) => ({
     nombreComponent: "Paciente",
+    enablePerfil: false,
     idUsuario: null,
     dialog: false,
     dialogDelete: false,
@@ -263,11 +279,11 @@ export default {
       },
       { text: "Nombres", value: "nombres" },
       { text: "Apellidos", value: "apellidos" },
-      { text: "Genero", value: "genero.nombre" },
+      { text: "Género", value: "genero.nombre" },
       { text: "Edad", value: "edad" },
-      { text: "Identificacion", value: "identificacion" },
+      { text: "Identificación", value: "identificacion" },
       { text: "Correo", value: "correo" },
-      { text: "Telefono", value: "telefono" },
+      { text: "Teléfono", value: "telefono" },
       { text: "Acciones", value: "actions", sortable: false },
     ],
     personas: [],
@@ -545,6 +561,7 @@ export default {
   },
   created() {
     //this.getPacientes();
+    this.getCatalogos();
     this.getPerfil();
   },
 };

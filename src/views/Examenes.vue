@@ -18,12 +18,16 @@
             </v-btn>
           </template>
           <v-card>
-            <v-card-title>
-              <span class="text-h5">{{ formTitle }}</span>
-            </v-card-title>
+            <v-toolbar flat color="info darken-1">
+              <v-icon>mdi-notebook-check</v-icon>
+              <v-toolbar-title class="font-weight-light">
+                {{ formTitle }}
+              </v-toolbar-title>
+              <v-spacer></v-spacer>
+            </v-toolbar>
             <v-card-text>
               <v-row>
-                <v-col class="d-flex" cols="12" sm="6">
+                <v-col class="d-flex mt-2" cols="12" sm="6">
                   <v-text-field
                     v-model="editedItem.nombre"
                     :rules="[
@@ -38,7 +42,7 @@
                   >
                   </v-text-field>
                 </v-col>
-                <v-col class="d-flex" cols="12" sm="6">
+                <v-col class="d-flex mt-2" cols="12" sm="6">
                   <v-text-field
                     v-model="editedItem.descripcion"
                     :rules="[

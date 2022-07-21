@@ -1,87 +1,118 @@
 <template>
-  <v-card>
-    <v-toolbar
-      flat
-      color="primary"
-      dark
-    >
-      <v-toolbar-title>User Profile</v-toolbar-title>
-    </v-toolbar>
-    <v-tabs vertical>
-      <v-tab>
-        <v-icon left>
-          mdi-account
-        </v-icon>
-        Option 1
-      </v-tab>
-      <v-tab>
-        <v-icon left>
-          mdi-lock
-        </v-icon>
-        Option 2
-      </v-tab>
-      <v-tab>
-        <v-icon left>
-          mdi-access-point
-        </v-icon>
-        Option 3
-      </v-tab>
-
-      <v-tab-item>
-        <v-card flat>
-          <v-card-text>
-            <p>
-              Sed aliquam ultrices mauris. Donec posuere vulputate arcu. Morbi ac felis. Etiam feugiat lorem non metus. Sed a libero.
-            </p>
-
-            <p>
-              Nam ipsum risus, rutrum vitae, vestibulum eu, molestie vel, lacus. Aenean tellus metus, bibendum sed, posuere ac, mattis non, nunc. Aliquam lobortis. Aliquam lobortis. Suspendisse non nisl sit amet velit hendrerit rutrum.
-            </p>
-
-            <p class="mb-0">
-              Phasellus dolor. Fusce neque. Fusce fermentum odio nec arcu. Pellentesque libero tortor, tincidunt et, tincidunt eget, semper nec, quam. Phasellus blandit leo ut odio.
-            </p>
-          </v-card-text>
-        </v-card>
-      </v-tab-item>
-      <v-tab-item>
-        <v-card flat>
-          <v-card-text>
-            <p>
-              Morbi nec metus. Suspendisse faucibus, nunc et pellentesque egestas, lacus ante convallis tellus, vitae iaculis lacus elit id tortor. Sed mollis, eros et ultrices tempus, mauris ipsum aliquam libero, non adipiscing dolor urna a orci. Curabitur ligula sapien, tincidunt non, euismod vitae, posuere imperdiet, leo. Nunc sed turpis.
-            </p>
-
-            <p>
-              Suspendisse feugiat. Suspendisse faucibus, nunc et pellentesque egestas, lacus ante convallis tellus, vitae iaculis lacus elit id tortor. Proin viverra, ligula sit amet ultrices semper, ligula arcu tristique sapien, a accumsan nisi mauris ac eros. In hac habitasse platea dictumst. Fusce ac felis sit amet ligula pharetra condimentum.
-            </p>
-
-            <p>
-              Sed consequat, leo eget bibendum sodales, augue velit cursus nunc, quis gravida magna mi a libero. Nam commodo suscipit quam. In consectetuer turpis ut velit. Sed cursus turpis vitae tortor. Aliquam eu nunc.
-            </p>
-
-            <p>
-              Etiam ut purus mattis mauris sodales aliquam. Ut varius tincidunt libero. Aenean viverra rhoncus pede. Duis leo. Fusce fermentum odio nec arcu.
-            </p>
-
-            <p class="mb-0">
-              Donec venenatis vulputate lorem. Aenean viverra rhoncus pede. In dui magna, posuere eget, vestibulum et, tempor auctor, justo. Fusce commodo aliquam arcu. Suspendisse enim turpis, dictum sed, iaculis a, condimentum nec, nisi.
-            </p>
-          </v-card-text>
-        </v-card>
-      </v-tab-item>
-      <v-tab-item>
-        <v-card flat>
-          <v-card-text>
-            <p>
-              Fusce a quam. Phasellus nec sem in justo pellentesque facilisis. Nam eget dui. Proin viverra, ligula sit amet ultrices semper, ligula arcu tristique sapien, a accumsan nisi mauris ac eros. In dui magna, posuere eget, vestibulum et, tempor auctor, justo.
-            </p>
-
-            <p class="mb-0">
-              Cras sagittis. Phasellus nec sem in justo pellentesque facilisis. Proin sapien ipsum, porta a, auctor quis, euismod ut, mi. Donec quam felis, ultricies nec, pellentesque eu, pretium quis, sem. Nam at tortor in tellus interdum sagittis.
-            </p>
-          </v-card-text>
-        </v-card>
-      </v-tab-item>
-    </v-tabs>
-  </v-card>
+   <v-dialog v-model="dialog" persistent max-width="600px" min-width="360px">
+            <div>
+                <v-tabs v-model="tab" show-arrows background-color="deep-purple accent-4" icons-and-text dark grow>
+                    <v-tabs-slider color="purple darken-4"></v-tabs-slider>
+                    <v-tab v-for="i in tabs" :key="i">
+                        <v-icon large>{{ i.icon }}</v-icon>
+                        <div class="caption py-1">{{ i.name }}</div>
+                    </v-tab>
+                    <v-tab-item>
+                        <v-card class="px-4">
+                            <v-card-text>
+                                <v-form ref="loginForm" v-model="valid" lazy-validation>
+                                    <v-row>
+                                        <v-col cols="12">
+                                            <v-text-field v-model="loginEmail" :rules="loginEmailRules" label="E-mail" required></v-text-field>
+                                        </v-col>
+                                        <v-col cols="12">
+                                            <v-text-field v-model="loginPassword" :append-icon="show1?'eye':'eye-off'" :rules="[rules.required, rules.min]" :type="show1 ? 'text' : 'password'" name="input-10-1" label="Password" hint="At least 8 characters" counter @click:append="show1 = !show1"></v-text-field>
+                                        </v-col>
+                                        <v-col class="d-flex" cols="12" sm="6" xsm="12">
+                                        </v-col>
+                                        <v-spacer></v-spacer>
+                                        <v-col class="d-flex" cols="12" sm="3" xsm="12" align-end>
+                                            <v-btn x-large block :disabled="!valid" color="success" @click="validate"> Login </v-btn>
+                                        </v-col>
+                                    </v-row>
+                                </v-form>
+                            </v-card-text>
+                        </v-card>
+                    </v-tab-item>
+                    <v-tab-item>
+                        <v-card class="px-4">
+                            <v-card-text>
+                                <v-form ref="registerForm" v-model="valid" lazy-validation>
+                                    <v-row>
+                                        <v-col cols="12" sm="6" md="6">
+                                            <v-text-field v-model="firstName" :rules="[rules.required]" label="First Name" maxlength="20" required></v-text-field>
+                                        </v-col>
+                                        <v-col cols="12" sm="6" md="6">
+                                            <v-text-field v-model="lastName" :rules="[rules.required]" label="Last Name" maxlength="20" required></v-text-field>
+                                        </v-col>
+                                        <v-col cols="12">
+                                            <v-text-field v-model="email" :rules="emailRules" label="E-mail" required></v-text-field>
+                                        </v-col>
+                                        <v-col cols="12">
+                                            <v-text-field v-model="password" :append-icon="show1 ? 'mdi-eye' : 'mdi-eye-off'" :rules="[rules.required, rules.min]" :type="show1 ? 'text' : 'password'" name="input-10-1" label="Password" hint="At least 8 characters" counter @click:append="show1 = !show1"></v-text-field>
+                                        </v-col>
+                                        <v-col cols="12">
+                                            <v-text-field block v-model="verify" :append-icon="show1 ? 'mdi-eye' : 'mdi-eye-off'" :rules="[rules.required, passwordMatch]" :type="show1 ? 'text' : 'password'" name="input-10-1" label="Confirm Password" counter @click:append="show1 = !show1"></v-text-field>
+                                        </v-col>
+                                        <v-spacer></v-spacer>
+                                        <v-col class="d-flex ml-auto" cols="12" sm="3" xsm="12">
+                                            <v-btn x-large block :disabled="!valid" color="success" @click="validate">Register</v-btn>
+                                        </v-col>
+                                    </v-row>
+                                </v-form>
+                            </v-card-text>
+                        </v-card>
+                    </v-tab-item>
+                </v-tabs>
+            </div>
+        </v-dialog>
+   
 </template>
+<script>
+export default {
+  computed: {
+    passwordMatch() {
+      return () => this.password === this.verify || "Password must match";
+    }
+  },
+  methods: {
+    validate() {
+      if (this.$refs.loginForm.validate()) {
+        // submit form to server/API here...
+      }
+    },
+    reset() {
+      this.$refs.form.reset();
+    },
+    resetValidation() {
+      this.$refs.form.resetValidation();
+    }
+  },
+  data: () => ({
+    dialog: true,
+    tab: 0,
+    tabs: [
+        {name:"Login", icon:"mdi-account"},
+        {name:"Register", icon:"mdi-account-outline"}
+    ],
+    valid: true,
+    
+    firstName: "",
+    lastName: "",
+    email: "",
+    password: "",
+    verify: "",
+    loginPassword: "",
+    loginEmail: "",
+    loginEmailRules: [
+      v => !!v || "Required",
+      v => /.+@.+\..+/.test(v) || "E-mail must be valid"
+    ],
+    emailRules: [
+      v => !!v || "Required",
+      v => /.+@.+\..+/.test(v) || "E-mail must be valid"
+    ],
+
+    show1: false,
+    rules: {
+      required: value => !!value || "Required.",
+      min: v => (v && v.length >= 8) || "Min 8 characters"
+    }
+  })
+}
+</script>
