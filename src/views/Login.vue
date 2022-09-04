@@ -51,6 +51,8 @@
           </v-card-text>
           <v-divider class="mt-5" />
           <v-card-actions>
+            <router-link to="/recovery">¿Olvidades la contraseña?
+            </router-link>
 						<v-spacer />
 						<v-btn align-center
                    justify-center 
@@ -92,7 +94,7 @@ export default {
     try {
       this.auxtoken = localStorage.getItem("token");
       if (this.auxtoken !== null) {
-        this.$router.push("/");
+        this.$router.push("/perfil");
       }else{
         // localStorage.setItem("visibleNavBar", false);
       }
@@ -142,7 +144,7 @@ export default {
             // localStorage.setItem("bandera", true);
             // this.auxtoken = result.data.token;
             if (this.auxtoken !== null) {
-              this.$router.push({ path: "/" });
+              this.$router.push({ path: "/perfil" });
               // this.$router.push({name:'about'});
             }
           });

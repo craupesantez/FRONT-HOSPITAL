@@ -50,11 +50,46 @@
         <v-tab href="#Registro"> Registro de Paciente </v-tab>
       </v-tabs>
     </div> -->
-    <Navbar v-if="!['login', 'registrar-paciente', 'pruebas'].includes($route.name)"></Navbar>
+    <Navbar
+      v-if="
+        [
+          'dashboard',
+          'pacientes',
+          'personal',
+          'roles',
+          'especialidades',
+          'catalogos',
+          'examenes',
+          'medicamentos',
+          'citas',
+          'perfil'
+        ].includes($route.name)
+      "
+    ></Navbar>
+    <NavbarHome v-if="
+        [
+          'home',
+        ].includes($route.name)
+      ">
+    </NavbarHome>
     <v-main class="ma-4">
       <router-view></router-view>
     </v-main>
-    <Footer v-if="!['login', 'registrar-paciente', 'pruebas'].includes($route.name)"></Footer>
+    <Footer
+      v-if="
+        ['dashboard',
+          'pacientes',
+          'personal',
+          'roles',
+          'especialidades',
+          'catalogos',
+          'examenes',
+          'medicamentos',
+          'citas',
+          'perfil'
+          ].includes($route.name)
+      "
+    ></Footer>
 
     <!-- <v-main>
       <router-view />
@@ -66,28 +101,30 @@
 import { mapActions, mapState } from "vuex";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import NavbarHome from "@/components/NavbarHome";
 export default {
   name: "App",
   components: {
     Navbar,
     Footer,
-  },
+    NavbarHome
+},
   data: () => ({
     //
     //  visibleNavBar: false,
   }),
   computed: {
-    ...mapState(['token', /*'visibleNavBar'*/ ]),
+    ...mapState(["token" /*'visibleNavBar'*/]),
     // isAuthenticated(){
     //   return this.visibleNavBar;
     // }
   },
   methods: {
-    ...mapActions(['leerToken', 'cerrarSesion' /*, 'getCatalogos'*/]),
+    ...mapActions(["leerToken", "cerrarSesion" /*, 'getCatalogos'*/]),
     redirectLogin() {
       // this.$store.commit('setVisibleNavBar', false);
       // localStorage.setItem("visibleNavBar", false);
-      this.cerrarSesion();     
+      this.cerrarSesion();
       this.$router.push({ path: "/login" });
     },
   },

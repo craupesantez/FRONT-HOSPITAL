@@ -1,4 +1,4 @@
-<template>
+<!-- <template>
   <div>
     <h1>Galeria de fotos</h1>
     <router-link :to="{name: 'fotos', params: {id: item}}" 
@@ -35,4 +35,4 @@ export default {
         }
     }
 };
-</script>
+</script> -->

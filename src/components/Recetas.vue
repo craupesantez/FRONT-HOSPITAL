@@ -178,6 +178,7 @@ export default {
     async getRecetas() {
       try {
         this.idCita =this.$store.state.idCita;
+        console.log("id de cita: ",this.idCita);
         await axios
           .get("http://localhost:3000/api/v1/citas/recetas")
           .then((result) => {
@@ -262,7 +263,7 @@ export default {
         let recetaDeleteId;
         await axios
           .delete(
-            `http://localhost:3000/api/v1/citas/delete-pedido/${this.activoItemId}`
+            `http://localhost:3000/api/v1/citas/delete-receta/${this.activoItemId}`
           )
           .then((result) => {
             recetaDeleteId = result.data;

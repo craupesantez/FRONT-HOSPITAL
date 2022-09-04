@@ -9,10 +9,10 @@ const routes = [
   {
     path: '/',
     name: 'home',
-    meta: {
-      requiresAuth: true
-    },
     // component: HomeView
+    meta: { 
+      requiresAuth: false,
+      title: 'home' },
     component: () => import(/* webpackChunkName: "about" */ '../views/Home.vue')
   },
   {
@@ -27,40 +27,44 @@ const routes = [
   {
     path: '/login',
     name: 'login',
-    meta: { title: 'Login' },
+    meta: { 
+      requiresAuth: false,
+      title: 'Login' },
     component: () => import(/* webpackChunkName: "about" */ '../views/Login.vue')
   },
   {
     path: '/registrar-paciente',
     name: 'registrar-paciente',
-    meta: { title: 'Registro de Paciente' },
-    component: () => import(/* webpackChunkName: "about" */ '../views/RegistrarPaciente.vue')
+    meta: { 
+      requiresAuth: false,
+      title: 'Registro de Paciente' },
+    component: () => import(/* webpackChunkName: "registrar-paciente" */ '../views/RegistrarPaciente.vue')
   },
   {
     path: '/pruebas',
     name: 'pruebas',
-    component: () => import(/* webpackChunkName: "about" */ '../views/Pruebas.vue')
+    component: () => import(/* webpackChunkName: "pruebas" */ '../views/Pruebas.vue')
   },
   {
     path: '/dashboard',
     name: 'dashboard',
-    component: () => import(/* webpackChunkName: "about" */ '../views/Dashboard.vue')
+    component: () => import(/* webpackChunkName: "dashboard" */ '../views/Dashboard.vue')
   },
   {
     path: '/fotos/:id',
     name: 'fotos',
     meta: { requiresAuth: true },
-    component: () => import(/* webpackChunkName: "about" */ '../views/Fotos.vue'),
+    component: () => import(/* webpackChunkName: "fotos" */ '../views/Fotos.vue'),
 
   },
   {
     path: '/pacientes',
-    name: 'paciente',
+    name: 'pacientes',
     meta: { 
       requiresAuth: true,
       title: 'Pacientes'
      },
-    component: () => import(/* webpackChunkName: "about" */ '../views/Pacientes.vue'),
+    component: () => import(/* webpackChunkName: "pacientes" */ '../views/Pacientes.vue'),
 
   },
   {
@@ -70,7 +74,7 @@ const routes = [
       requiresAuth: true,
       title:'Personal'
      },
-    component: () => import(/* webpackChunkName: "about" */ '../views/Personal.vue'),
+    component: () => import(/* webpackChunkName: "personal" */ '../views/Personal.vue'),
   },
   {
     path: '/roles',
@@ -79,7 +83,7 @@ const routes = [
       requiresAuth: true,
       title:'Roles'
      },
-    component: () => import(/* webpackChunkName: "about" */ '../views/Roles.vue'),
+    component: () => import(/* webpackChunkName: "roles" */ '../views/Roles.vue'),
 
   },
   {
@@ -89,7 +93,7 @@ const routes = [
       requiresAuth: true,
       title:'Especialidades'
      },
-    component: () => import(/* webpackChunkName: "about" */ '../views/Especialidades.vue'),
+    component: () => import(/* webpackChunkName: "especialidades" */ '../views/Especialidades.vue'),
   },
   {
     path: '/catalogos',
@@ -98,7 +102,7 @@ const routes = [
       requiresAuth: true,
       title:'Catalogos'
      },
-    component: () => import(/* webpackChunkName: "about" */ '../views/Catalogos.vue'),
+    component: () => import(/* webpackChunkName: "catalogos" */ '../views/Catalogos.vue'),
   },
   {
     path: '/examenes',
@@ -107,7 +111,7 @@ const routes = [
       requiresAuth: true,
       title:'Examenes'
      },
-    component: () => import(/* webpackChunkName: "about" */ '../views/Examenes.vue'),
+    component: () => import(/* webpackChunkName: "examenes" */ '../views/Examenes.vue'),
   },
   {
     path: '/medicamentos',
@@ -116,7 +120,7 @@ const routes = [
       requiresAuth: true,
       title:'Medicamentos'
      },
-    component: () => import(/* webpackChunkName: "about" */ '../views/Medicamentos.vue'),
+    component: () => import(/* webpackChunkName: "medicamentos" */ '../views/Medicamentos.vue'),
   },
   {
     path: '/citas',
@@ -125,7 +129,7 @@ const routes = [
       requiresAuth: true,
       title:'Citas'
      },
-    component: () => import(/* webpackChunkName: "about" */ '../views/Citas.vue'),
+    component: () => import(/* webpackChunkName: "citas" */ '../views/Citas.vue'),
   },
   {
     path: '/perfil',
@@ -134,8 +138,26 @@ const routes = [
       requiresAuth: true,
       title:'Perfil'
      },
-    component: () => import(/* webpackChunkName: "about" */ '../views/Perfil.vue'),
-  }
+    component: () => import(/* webpackChunkName: "perfil" */ '../views/Perfil.vue'),
+  },
+  {
+    path: '/recovery',
+    name: 'recovery',
+    meta: { 
+      requiresAuth: false,
+      title:'Recovery'
+     },
+    component: () => import(/* webpackChunkName: "perfil" */ '../views/Recovery.vue'),
+  },
+  {
+    path: '/change-password',
+    name: 'change-password',
+    meta: { 
+      requiresAuth: false,
+      title:'Change password'
+     },
+    component: () => import(/* webpackChunkName: "perfil" */ '../views/ChangePassword.vue'),
+  },
 ]
 
 const router = new VueRouter({
@@ -179,13 +201,18 @@ router.beforeEach(async (to, from, next) => {
         next()
       } else {
         console.log(to.path)
-        if ((!isPaciente && !isMedico && !isAuxiliar) && (to.path === "/login" || to.path === "/registrar-paciente")) {
+        if ((!isPaciente && !isMedico && !isAuxiliar) 
+            && (to.path === "/login" 
+            || to.path === "/registrar-paciente" 
+            || to.path === "/" 
+            || to.path === "/recovery"
+            || to.path === "/change-password")) {
           next()
         }
-        if (isPaciente && (to.path === "/citas" || to.path === "/" || to.path === "/perfil")) {
+        if (isPaciente && (to.path === "/citas" || to.path === "/" || to.path === "/perfil" || to.path === "/")) {
           next()
         }
-        if (isMedico && (to.path === "/" || to.path === "/citas" || to.path ==="/perfil")) {
+        if (isMedico && (to.path === "/" || to.path === "/citas" || to.path ==="/perfil" || to.path === "/")) {
           next()
         }
       }

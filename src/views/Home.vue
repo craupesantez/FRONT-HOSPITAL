@@ -1,23 +1,32 @@
-<template>
-
+<!-- <template>
+  <v-carousel :show-arrows="false">
+    <v-carousel-item
+      v-for="(item,i) in items"
+      :key="i"
+      :src="item.src"
+    ></v-carousel-item>
+  </v-carousel>
 </template>
 
 <script>
-import { mapActions, mapState } from "vuex";
-
-export default {
-  name: "Home",
-  computed: {
-    ...mapState(['token', /*'visibleNavBar'*/]),
-    // isAuthenticated() {
-    //   return this.visibleNavBar;
-    // },
-  },
-  created: function () {
-    // this.leerToken();
-    // if (this.token !== null) {
-    //   this.VisibleNavbar = true;
-    // }
-  },
-};
-</script>
+  export default {
+    data () {
+      return {
+        items: [
+          {
+            src: 'https://cdn.vuetifyjs.com/images/carousel/squirrel.jpg',
+          },
+          {
+            src: 'https://cdn.vuetifyjs.com/images/carousel/sky.jpg',
+          },
+          {
+            src: 'https://cdn.vuetifyjs.com/images/carousel/bird.jpg',
+          },
+          {
+            src: 'https://cdn.vuetifyjs.com/images/carousel/planet.jpg',
+          },
+        ],
+      }
+    },
+  }
+</script> -->

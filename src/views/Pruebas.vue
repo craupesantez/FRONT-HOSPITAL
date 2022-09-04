@@ -1,118 +1,114 @@
 <template>
-   <v-dialog v-model="dialog" persistent max-width="600px" min-width="360px">
-            <div>
-                <v-tabs v-model="tab" show-arrows background-color="deep-purple accent-4" icons-and-text dark grow>
-                    <v-tabs-slider color="purple darken-4"></v-tabs-slider>
-                    <v-tab v-for="i in tabs" :key="i">
-                        <v-icon large>{{ i.icon }}</v-icon>
-                        <div class="caption py-1">{{ i.name }}</div>
-                    </v-tab>
-                    <v-tab-item>
-                        <v-card class="px-4">
-                            <v-card-text>
-                                <v-form ref="loginForm" v-model="valid" lazy-validation>
-                                    <v-row>
-                                        <v-col cols="12">
-                                            <v-text-field v-model="loginEmail" :rules="loginEmailRules" label="E-mail" required></v-text-field>
-                                        </v-col>
-                                        <v-col cols="12">
-                                            <v-text-field v-model="loginPassword" :append-icon="show1?'eye':'eye-off'" :rules="[rules.required, rules.min]" :type="show1 ? 'text' : 'password'" name="input-10-1" label="Password" hint="At least 8 characters" counter @click:append="show1 = !show1"></v-text-field>
-                                        </v-col>
-                                        <v-col class="d-flex" cols="12" sm="6" xsm="12">
-                                        </v-col>
-                                        <v-spacer></v-spacer>
-                                        <v-col class="d-flex" cols="12" sm="3" xsm="12" align-end>
-                                            <v-btn x-large block :disabled="!valid" color="success" @click="validate"> Login </v-btn>
-                                        </v-col>
-                                    </v-row>
-                                </v-form>
-                            </v-card-text>
-                        </v-card>
-                    </v-tab-item>
-                    <v-tab-item>
-                        <v-card class="px-4">
-                            <v-card-text>
-                                <v-form ref="registerForm" v-model="valid" lazy-validation>
-                                    <v-row>
-                                        <v-col cols="12" sm="6" md="6">
-                                            <v-text-field v-model="firstName" :rules="[rules.required]" label="First Name" maxlength="20" required></v-text-field>
-                                        </v-col>
-                                        <v-col cols="12" sm="6" md="6">
-                                            <v-text-field v-model="lastName" :rules="[rules.required]" label="Last Name" maxlength="20" required></v-text-field>
-                                        </v-col>
-                                        <v-col cols="12">
-                                            <v-text-field v-model="email" :rules="emailRules" label="E-mail" required></v-text-field>
-                                        </v-col>
-                                        <v-col cols="12">
-                                            <v-text-field v-model="password" :append-icon="show1 ? 'mdi-eye' : 'mdi-eye-off'" :rules="[rules.required, rules.min]" :type="show1 ? 'text' : 'password'" name="input-10-1" label="Password" hint="At least 8 characters" counter @click:append="show1 = !show1"></v-text-field>
-                                        </v-col>
-                                        <v-col cols="12">
-                                            <v-text-field block v-model="verify" :append-icon="show1 ? 'mdi-eye' : 'mdi-eye-off'" :rules="[rules.required, passwordMatch]" :type="show1 ? 'text' : 'password'" name="input-10-1" label="Confirm Password" counter @click:append="show1 = !show1"></v-text-field>
-                                        </v-col>
-                                        <v-spacer></v-spacer>
-                                        <v-col class="d-flex ml-auto" cols="12" sm="3" xsm="12">
-                                            <v-btn x-large block :disabled="!valid" color="success" @click="validate">Register</v-btn>
-                                        </v-col>
-                                    </v-row>
-                                </v-form>
-                            </v-card-text>
-                        </v-card>
-                    </v-tab-item>
-                </v-tabs>
-            </div>
-        </v-dialog>
-   
+  <v-toolbar color="orange accent-1">
+    <v-app-bar-nav-icon class="hidden-sm-and-down"></v-app-bar-nav-icon>
+    <v-toolbar-title class="text-h6 mr-6 hidden-sm-and-down">
+      Cryptocurrency
+    </v-toolbar-title>
+    <v-autocomplete
+      v-model="model"
+      :items="items"
+      :loading="isLoading"
+      :search-input.sync="search"
+      chips
+      clearable
+      hide-details
+      hide-selected
+      item-text="name"
+      item-value="symbol"
+      label="Search for a coin..."
+      solo
+    >
+      <template v-slot:no-data>
+        <v-list-item>
+          <v-list-item-title>
+            Search for your favorite
+            <strong>Cryptocurrency</strong>
+          </v-list-item-title>
+        </v-list-item>
+      </template>
+      <template v-slot:selection="{ attr, on, item, selected }">
+        <v-chip
+          v-bind="attr"
+          :input-value="selected"
+          color="blue-grey"
+          class="white--text"
+          v-on="on"
+        >
+          <v-icon left>
+            mdi-bitcoin
+          </v-icon>
+          <span v-text="item.name"></span>
+        </v-chip>
+      </template>
+      <template v-slot:item="{ item }">
+        <v-list-item-avatar
+          color="indigo"
+          class="text-h5 font-weight-light white--text"
+        >
+          {{ item.name.charAt(0) }}
+        </v-list-item-avatar>
+        <v-list-item-content>
+          <v-list-item-title v-text="item.name"></v-list-item-title>
+          <v-list-item-subtitle v-text="item.symbol"></v-list-item-subtitle>
+        </v-list-item-content>
+        <v-list-item-action>
+          <v-icon>mdi-bitcoin</v-icon>
+        </v-list-item-action>
+      </template>
+    </v-autocomplete>
+    <template v-slot:extension>
+      <v-tabs
+        v-model="tab"
+        :hide-slider="!model"
+        color="blue-grey"
+        slider-color="blue-grey"
+      >
+        <v-tab :disabled="!model">
+          News
+        </v-tab>
+        <v-tab :disabled="!model">
+          Trading
+        </v-tab>
+        <v-tab :disabled="!model">
+          Blog
+        </v-tab>
+      </v-tabs>
+    </template>
+  </v-toolbar>
 </template>
-<script>
-export default {
-  computed: {
-    passwordMatch() {
-      return () => this.password === this.verify || "Password must match";
-    }
-  },
-  methods: {
-    validate() {
-      if (this.$refs.loginForm.validate()) {
-        // submit form to server/API here...
-      }
-    },
-    reset() {
-      this.$refs.form.reset();
-    },
-    resetValidation() {
-      this.$refs.form.resetValidation();
-    }
-  },
-  data: () => ({
-    dialog: true,
-    tab: 0,
-    tabs: [
-        {name:"Login", icon:"mdi-account"},
-        {name:"Register", icon:"mdi-account-outline"}
-    ],
-    valid: true,
-    
-    firstName: "",
-    lastName: "",
-    email: "",
-    password: "",
-    verify: "",
-    loginPassword: "",
-    loginEmail: "",
-    loginEmailRules: [
-      v => !!v || "Required",
-      v => /.+@.+\..+/.test(v) || "E-mail must be valid"
-    ],
-    emailRules: [
-      v => !!v || "Required",
-      v => /.+@.+\..+/.test(v) || "E-mail must be valid"
-    ],
 
-    show1: false,
-    rules: {
-      required: value => !!value || "Required.",
-      min: v => (v && v.length >= 8) || "Min 8 characters"
-    }
-  })
-}
+<script>
+  export default {
+    data: () => ({
+      isLoading: false,
+      items: [],
+      model: null,
+      search: null,
+      tab: null,
+    }),
+
+    watch: {
+      model (val) {
+        if (val != null) this.tab = 0
+        else this.tab = null
+      },
+      search (val) {
+        // Items have already been loaded
+        if (this.items.length > 0) return
+
+        this.isLoading = true
+
+        // Lazily load input items
+        fetch('https://api.coingecko.com/api/v3/coins/list')
+          .then(res => res.clone().json())
+          .then(res => {
+            this.items = res
+          })
+          .catch(err => {
+            console.log(err)
+          })
+          .finally(() => (this.isLoading = false))
+      },
+    },
+  }
 </script>

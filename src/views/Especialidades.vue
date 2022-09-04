@@ -44,6 +44,21 @@
                 </v-col>
                 <v-col class="d-flex mt-2" cols="12" sm="6">
                   <v-text-field
+                    v-model="editedItem.descripcion"
+                    :rules="[
+                      () =>
+                        !!editedItem.descripcion || 'La descripcion es requerida',
+                    ]"
+                    :error-messages="errorMessages"
+                    color="accent"
+                    label="Descripción"
+                    required
+                    outlined
+                  >
+                  </v-text-field>
+                </v-col>
+                <v-col class="d-flex mt-2" cols="12" sm="6">
+                  <v-text-field
                     v-model="editedItem.color"
                     :rules="[
                       () =>
@@ -151,6 +166,7 @@ export default {
         value: "id",
       },
       { text: "Nombre", value: "nombre" },
+      { text: "Descripción", value: "descripcion" },
       { text: "Activo", value: "activo" },
       { text: "Registrado por:", value: "usuarioRegistro" },
       { text: "Actualizado por:", value: "usuarioActualizo" },
@@ -161,6 +177,7 @@ export default {
     editedIndex: -1,
     editedItem: {
       nombre: "",
+      descripcion:"",
       activo: true,
       usuarioRegistro: localStorage.getItem("username").replace('"','').replace('"',''),
       usuarioActualizo: localStorage.getItem("username").replace('"','').replace('"',''),
@@ -168,6 +185,7 @@ export default {
     },
     defaultItem: {
       nombre: "",
+      descripcion:"",
       activo: true,
        usuarioRegistro: localStorage.getItem("username").replace('"','').replace('"',''),
        usuarioActualizo: localStorage.getItem("username").replace('"','').replace('"',''),

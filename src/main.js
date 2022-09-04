@@ -11,6 +11,13 @@ import VueTextareaAutosize from 'vue-textarea-autosize'
 import moment from 'moment'
 import Vuesax from 'vuesax'
 import 'vuesax/dist/vuesax.css' //Vuesax styles
+import * as VueGoogleMaps from "vue2-google-maps";
+
+Vue.use(VueGoogleMaps, {
+  load: {
+    key:"AIzaSyD9PncAFCV19m4reGeQsAwYz-3e55dILFY" //"AIzaSyDp3Ud3SixagW8bJOwtosy5bBMB5JRNS_k",
+  },
+});
 
 Vue.prototype.moment = moment
 

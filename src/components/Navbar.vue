@@ -82,7 +82,7 @@ export default {
     roles:[],
     links: [
       { icon: "mdi-face-man-profile", text: "Perfil", route: "/perfil" , visible: true},
-      { icon: "dashboard", text: "Dashboard", route: "/", visible: true },
+      { icon: "dashboard", text: "Dashboard", route: "/dashboard" , visible: true },
       { icon: "mdi-bed-outline", text: "Pacientes", route: "/pacientes", visible: true },
       { icon: "mdi-account-hard-hat", text: "Personal", route: "/personal", visible: true },
       { icon: "mdi-medal", text: "Especialidades", route: "/especialidades" , visible: true},
