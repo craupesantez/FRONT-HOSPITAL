@@ -305,7 +305,7 @@ export default {
       { text: "Codigo", value: "codigo" },
       { text: "Presentacion Comerial", value: "presentComer" },
       { text: "Presentacion del Medicamento", value: "presentacionMedica" },
-      { text: "Numero de Registro Sanitario", value: "RegistroSanitario" },
+      { text: "Numero de Registro Sanitario", value: "registroSanitario" },
       { text: "Stock Maximo", value: "stockMaximo" },
       { text: "Stock Minimo", value: "stockMinimo" },
       { text: "Fecha de Registro", value: "fechaRegistro" },
