@@ -62,7 +62,8 @@
           'examenes',
           'medicamentos',
           'citas',
-          'perfil'
+          'perfil',
+          'reportes'
         ].includes($route.name)
       "
     ></Navbar>
@@ -86,7 +87,8 @@
           'examenes',
           'medicamentos',
           'citas',
-          'perfil'
+          'perfil',
+          'reportes'
           ].includes($route.name)
       "
     ></Footer>

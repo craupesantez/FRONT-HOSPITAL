@@ -209,6 +209,7 @@ export default {
     especialidades: [],
     citas: [],
     examenes: [],
+    citasPorEspecialidad: [],
   }),
   created() {
     this.getPacientes();
@@ -216,6 +217,7 @@ export default {
     this.getEspecialidades();
     this.getCitas();
     this.getExamenes();
+    this.getCitasByEspecialidad(); 
   },
   methods: {
     async getPacientes() {
@@ -266,6 +268,19 @@ export default {
           this.citas = res;
           console.log(this.citas);
           this.citas
+        });
+      } catch (error) {
+        console.log(error);
+      }
+    },
+    async getCitasByEspecialidad() {
+      try {
+        axios.get("http://localhost:3000/api/v1/citas/citas-by-especialidad").then((result) => {
+          let res = result.data;
+          this.citasPorEspecialidad = res;
+          console.log(this.citasPorEspecialidad);
+          this.chartData.datasets[0].data =  this.citasPorEspecialidad.map(item=>item.total);
+
         });
       } catch (error) {
         console.log(error);

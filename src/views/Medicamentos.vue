@@ -11,7 +11,7 @@
         <v-divider class="mx-4" inset vertical></v-divider>
         <v-spacer></v-spacer>
 
-        <v-dialog v-model="dialog" max-width="500px">
+        <v-dialog v-model="dialog" max-width="800px">
           <template v-slot:activator="{ on, attrs }">
             <v-btn color="primary" dark class="mb-2" v-bind="attrs" v-on="on">
               Nuevo Medicamento
@@ -144,6 +144,88 @@
                     :label="`Estado`"
                   ></v-checkbox>
                 </v-col>
+                <v-col class="d-flex mt-2" cols="12" sm="6">
+                  <v-text-field
+                    v-model="editedItem.codigo"
+                    :rules="[
+                      () => !!editedItem.codigo || 'El codigo es requerido',
+                    ]"
+                    :error-messages="errorMessages"
+                    color="accent"
+                    label="Codigo"
+                    required
+                    outlined
+                  >
+                  </v-text-field>
+                </v-col>
+                <v-col class="d-flex" cols="12" sm="6">
+                        <v-autocomplete
+                          v-model="editedItem.presentComer"
+                          item-value="presentacionComerId"
+                          :items="presentacionCo"
+                          :filter="customFilter"
+                          color="accent"
+                          item-text="nombre"
+                          label="Presentacion Comercial"
+                          required
+                          :rules="selectRules"
+                          return-object
+                          no-data-text="No existen presentacion Comercial"
+                          outlined
+                        ></v-autocomplete>
+                </v-col>
+                <v-col class="d-flex" cols="12" sm="6">
+                        <v-autocomplete
+                          v-model="editedItem.presentacionMedica"
+                          item-value="presentacionMedicaId"
+                          :items="presentacionMedi"
+                          :filter="customFilter"
+                          color="accent"
+                          item-text="nombre"
+                          label="Presentacion Medicamento"
+                          required
+                          :rules="selectRules"
+                          return-object
+                          no-data-text="No existen presentacion Medicamentos"
+                          outlined
+                        ></v-autocomplete>
+                </v-col>
+                <v-col class="d-flex mt-2" cols="12" sm="6">
+                  <v-text-field
+                    v-model="editedItem.RegistroSanitario"
+                    :rules="[
+                      () => !!editedItem.RegistroSanitario || 'El registro sanitario  es requerido',
+                    ]"
+                    :error-messages="errorMessages"
+                    color="accent"
+                    label="Número del registro Sanitario"
+                    required
+                    outlined
+                  >
+                  </v-text-field>
+                </v-col>
+                <v-col class="d-flex mt-2" cols="12" sm="6">
+                  <v-text-field
+                    v-model="editedItem.stockMaximo"
+                    hide-details
+                    single-line
+                    label="Stock Maximo"
+                    required
+                    outlined
+                    type="number"
+                  ></v-text-field>
+                </v-col>
+                <v-col class="d-flex mt-2" cols="12" sm="6">
+                  <v-text-field
+                    v-model="editedItem.stockMinimo"
+                    hide-details
+                    single-line
+                    label="Stock Minimo"
+                    required
+                    outlined
+                    type="number"
+                  ></v-text-field>
+                </v-col>
               </v-row>
             </v-card-text>
             <v-card-actions>
@@ -220,9 +302,19 @@ export default {
       { text: "Costo Caja", value: "costoCaja" },
       { text: "Fecha de Vencimiento", value: "fechaVencimiento" },
       { text: "Activo", value: "activo" },
+      { text: "Codigo", value: "codigo" },
+      { text: "Presentacion Comerial", value: "presentComer" },
+      { text: "Presentacion del Medicamento", value: "presentacionMedica" },
+      { text: "Numero de Registro Sanitario", value: "RegistroSanitario" },
+      { text: "Stock Maximo", value: "stockMaximo" },
+      { text: "Stock Minimo", value: "stockMinimo" },
+      { text: "Fecha de Registro", value: "fechaRegistro" },
       { text: "Acciones", value: "actions", sortable: false },
+      
     ],
     medicamentos: [],
+    presentacionCo: [],	
+    presentacionMedi: [],	
     editedIndex: -1,
     editedItem: {
       nombre: "",
@@ -320,7 +412,11 @@ export default {
         this.editedIndex = -1;
       });
     },
-
+    customFilter(item, queryText, itemText) {
+      const textOne = item.nombre.toLowerCase();
+      const searchText = queryText.toLowerCase();
+      return textOne.indexOf(searchText) > -1;
+    },
     closeDelete() {
       this.dialogDelete = false;
       this.$nextTick(() => {
@@ -328,7 +424,27 @@ export default {
         this.editedIndex = -1;
       });
     },
-
+    async getEstados() {
+      try {
+        axios.get("http://localhost:3000/api/v1/catalogos").then((result) => {
+          this.presentacionMedi = result.data.filter((item) => {
+            if (item.tipo === "PRESENTACION_MEDI" && item.activo === true) {
+              item.estadoId = item.id;
+              return item;
+            }
+          });
+          this.presentacionCo = result.data.filter((item) => {
+            if (item.tipo === "PRESENTACION_COMERCIAL" && item.activo === true) {
+              item.estadoId = item.id;
+              return item;
+            }
+          });
+          // console.log("catalogos: " , this.catalogos);
+        });
+      } catch (error) {
+        console.log(error);
+      }
+    },
     async save() {
       try {
         if (this.editedIndex > -1) {
@@ -365,6 +481,7 @@ export default {
   },
   created() {
     this.getMedicamentos();
+    this.getEstados();
   },
 };
 </script>

@@ -80,6 +80,7 @@
                       outlined
                       class="mt-3"
                       :rules="motivoRules"
+                      v-show="validarTerminacion"
                     >
                     </v-text-field>
                     <v-text-field
@@ -269,6 +270,20 @@
                       v-show="enableEstado"
                       outlined
                     ></v-textarea>
+                    <v-alert dense text type="error" v-if="!validarDiagnostico">
+                      Diagnostico no ingresado
+                    </v-alert>
+                    <v-slider
+                      v-model="editedItem.calificacion"
+                      :rules="ruleCalificacion"
+                      color="orange"
+                      label="Calificación"
+                      hint="Gracias por calificarme"
+                      min="1"
+                      max="5"
+                      thumb-label
+                      v-show="enableCalificacion"
+                    ></v-slider>
                     <v-switch
                       v-model="dialogExamenes"
                       label="Panel examenes y recetas"
@@ -293,8 +308,11 @@
                     Receta Medicamentos
                   </v-btn>
                     </div> -->
-                  <!-- <Pedidos v-show="dialogExamenes"></Pedidos> -->
-                  <menuExtraCita v-show="dialogExamenes" ref="menuExtraCita"></menuExtraCita>
+                    <!-- <Pedidos v-show="dialogExamenes"></Pedidos> -->
+                    <menuExtraCita
+                      v-show="dialogExamenes"
+                      ref="menuExtraCita"
+                    ></menuExtraCita>
                   </v-form>
                 </v-card-text>
                 <v-card-actions>
@@ -309,7 +327,7 @@
                   <v-btn text color="teal accent-4" @click="cerrar">
                     Cancelar
                   </v-btn>
-                  
+
                   <v-btn
                     color="red"
                     icon
@@ -358,7 +376,6 @@
                 </v-card-text>
               </v-card>
             </v-dialog> -->
-
           </v-toolbar>
         </v-sheet>
         <v-sheet height="600">
@@ -401,9 +418,10 @@ export default {
   components: {
     // Recetas,
     // Pedidos,
-    'menuExtraCita':MenuExtraCita
+    menuExtraCita: MenuExtraCita,
   },
   data: (vm) => ({
+    //validarDiagnostico: false,
     today: new Date(),
     focus: "",
     type: "month",
@@ -415,6 +433,9 @@ export default {
     dialogDelete: false,
     dialogExamenes: false,
     dialogRecetas: false,
+    stringRoles:"",
+    idUser:null,
+    enableCalificacion:false,
     typeToLabel: {
       month: "Mes",
       week: "Semana",
@@ -445,6 +466,12 @@ export default {
       (v) =>
         (v && v.length <= 50) || "El detalle debe tener menos de 51 caracteres",
     ],
+    numberRule: (v) => {
+      if (!v.trim()) return true;
+      if (!isNaN(parseFloat(v)) && v >= 0 && v <= 5) return true;
+      return "Number has to be between 0 and 5";
+    },
+    ruleCalificacion: [(val) => val < 6 || `No te creo`],
     defaultItem: {
       motivo: "",
       detalle: "",
@@ -457,6 +484,7 @@ export default {
       timed: "01:00:00",
       fechaInicio: moment().format("YYYY-MM-DD"),
       diagnostico: "",
+      calificacion: "",
     },
     editedItem: {
       motivo: "",
@@ -470,6 +498,7 @@ export default {
       timed: "01:00:00",
       fechaInicio: moment().format("YYYY-MM-DD"),
       diagnostico: "",
+      calificacion: "",
     },
     selectedEvent: {},
     selectedElement: null,
@@ -504,17 +533,20 @@ export default {
   }),
   mounted() {
     this.statesRoles = this.$store.state.roles;
-    this.isAdministrador = this.statesRoles.some(
-      (item) => item.nombre == "ADMINISTRADOR"
-    );
-    this.isPaciente = this.statesRoles.some(
-      (item) => item.nombre == "PACIENTE"
-    );
+    this.idUser = this.$store.state.id;
+    this.isAdministrador = this.statesRoles.some((item) => item.nombre == "ADMINISTRADOR");
+    this.isPaciente = this.statesRoles.some((item) => item.nombre == "PACIENTE");
     this.isMedico = this.statesRoles.some((item) => item.nombre == "MEDICO");
-    this.isAuxiliar = this.statesRoles.some(
-      (item) => item.nombre == "AUXILIAR"
-    );
-    console.log("entra al mounted");
+    this.isAuxiliar = this.statesRoles.some((item) => item.nombre == "AUXILIAR");
+    if(!isAdministrador) {
+      if(isPaciente && !isMedico) {
+        this.stringRoles= "PACIENTE" 
+      }else if(isMedico){
+        this.stringRoles= "MEDICO"
+      }
+    }else{
+      this.stringRoles= "ADMINISTRADOR"
+    }
     this.$refs.calendar.checkChange();
   },
   created() {
@@ -542,8 +574,8 @@ export default {
     //   console.log(a);
     //   this.colorS = a.color;
     // },
-    updatePedidoByCita(value){
-      console.log("actualizar pedido de cita:", value)
+    updatePedidoByCita(value) {
+      console.log("actualizar pedido de cita:", value);
       this.$refs.menuExtraCita.defaultTabs(value);
     },
     async guardarCita() {
@@ -563,6 +595,7 @@ export default {
               especialidadId: this.editedItem.especialidad.id,
               diagnostico: this.editedItem.diagnostico,
               color: this.editedItem.especialidad.color,
+              calificacion: this.editedItem.calificacion,
             };
             console.log(cita);
             await axios
@@ -596,7 +629,7 @@ export default {
               pacienteId: this.editedItem.paciente.id,
               medicoId: this.editedItem.medico.id,
               especialidadId: this.editedItem.especialidad.id,
-              color:this.editedItem.especialidad.color,
+              color: this.editedItem.especialidad.color,
             };
             await axios
               .post("http://localhost:3000/api/v1/citas", newCita)
@@ -612,6 +645,12 @@ export default {
         this.cerrar();
       } catch (error) {
         console.log(error);
+        this.openNotification(
+          "",
+          2,
+          error.message,
+          error.response.data.message
+        );
       }
     },
     cerrar() {
@@ -788,7 +827,7 @@ export default {
       let fechaMasFraccion =
         new Date(fechaIncioFormat).getTime() +
         this.convHoraInterger * 60 * 60 * 1000;
-        console.log(event);
+      console.log(event);
       this.events.push({
         id: event.id,
         name: event.motivo + "(" + event.id + ")",
@@ -806,6 +845,7 @@ export default {
         estadoId: event.estadoId,
         color: event.color,
         diagnostico: event.diagnostico,
+        calificacion: event.calificacion,
       });
     },
     viewDay({ date }) {
@@ -837,7 +877,7 @@ export default {
     dialogExamen() {
       this.dialogExamenes = true;
     },
-    dialogReceta(){
+    dialogReceta() {
       this.dialogRecetas = true;
     },
     async deleteItemConfirm() {
@@ -859,9 +899,14 @@ export default {
     },
 
     showEvent({ nativeEvent, event }) {
-      this.valid= true;
-      this.$store.commit('setIdCita', event.id);
+      this.valid = true;
+      this.$store.commit("setIdCita", event.id);
       this.enableEstado = true;
+      if(this.enableEstado && this.isPaciente && this.idUser === event.pacienteId){
+        this.enableCalificacion = true;
+      }else{
+        this.enableCalificacion = false;
+      }
       console.log("evento click");
       console.log(event);
       this.editedIndex = event.id;
@@ -876,7 +921,8 @@ export default {
         time: event.hora,
         timed: event.fraccion,
         id: event.id,
-        diagnostico : event.diagnostico
+        diagnostico: event.diagnostico,
+        calificacion: event.calificacion,
       };
       console.log("valor de editedItem: ", this.editedItem);
       this.dialog = true;
@@ -895,6 +941,24 @@ export default {
     formTitle() {
       this.enableEstado = this.editedIndex === -1 ? false : true;
       return this.editedIndex === -1 ? "Nueva Cita" : "Editar Cita";
+    },
+    validarDiagnostico() {
+      if (this.editedItem.diagnostico !== null) {
+        this.valid = true;
+        return true;
+      } else {
+        this.valid = false;
+        return false;
+      }
+    },
+    validarTerminacion() {
+      if (this.editedItem.estadoId == 18) {
+        console.log("entra en el false");
+        return false;
+      } else {
+        console.log("entra en el true");
+        return true;
+      }
     },
   },
   watch: {

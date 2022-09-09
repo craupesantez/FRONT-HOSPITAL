@@ -158,6 +158,15 @@ const routes = [
      },
     component: () => import(/* webpackChunkName: "perfil" */ '../views/ChangePassword.vue'),
   },
+  {
+    path: '/reportes',
+    name: 'reportes',
+    meta: { 
+      requiresAuth: true,
+      title:'Reportes'
+     },
+    component: () => import(/* webpackChunkName: "reportes" */ '../views/Reportes.vue'),
+  },
 ]
 
 const router = new VueRouter({
@@ -184,6 +193,7 @@ router.beforeEach(async (to, from, next) => {
     let isPaciente = false;
     let isMedico = false;
     let isAuxiliar = false;
+    let isFarmaceutico = false;
     console.log(" roles:", store.state.roles);
     if (bandera) {
       // roles = async ()=>{
@@ -192,7 +202,8 @@ router.beforeEach(async (to, from, next) => {
       isAdministrador = store.state.roles.some(item => item.nombre === "ADMINISTRADOR");
       isPaciente = store.state.roles.some(item => item.nombre === "PACIENTE");
       isMedico = store.state.roles.some(item => item.nombre === "MEDICO");
-      isAuxiliar = store.state.roles.some(item => item.nombre === "Auxiliar");
+      isAuxiliar = store.state.roles.some(item => item.nombre === "AUXILIAR");
+      isFarmaceutico = store.state.roles.some(item => item.nombre === "FARMACEUTICO");
     }
     if (rutaProtegida && store.state.token === null) {
       next('/login')
@@ -213,6 +224,9 @@ router.beforeEach(async (to, from, next) => {
           next()
         }
         if (isMedico && (to.path === "/" || to.path === "/citas" || to.path ==="/perfil" || to.path === "/")) {
+          next()
+        }
+        if (isFarmaceutico && (to.path === "/" || to.path === "/medicamentos" || to.path ==="/perfil" || to.path === "/")) {
           next()
         }
       }

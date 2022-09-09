@@ -92,6 +92,7 @@ export default {
       { icon: "mdi-notebook-check", text: "Exámenes", route: "/examenes" , visible: true },
       { icon: "mdi-pill", text: "Medicamentos", route: "/medicamentos" , visible: true },
       { icon: "mdi-calendar-multiple", text: "Citas", route: "/citas" , visible: true},
+      { icon: "mdi-chart-sankey", text: "Reportes", route: "/reportes" , visible: true},
     ],
   }),
   mounted(){
@@ -99,7 +100,8 @@ export default {
     let isAdministrador = roles.some(item => item.nombre=== "ADMINISTRADOR");
     let isPaciente = roles.some(item => item.nombre=== "PACIENTE");
     let isMedico = roles.some(item => item.nombre=== "MEDICO");
-    let isAuxiiliar = roles.some(item => item.nombre=== "Auxiiliar");
+    let isAuxiiliar = roles.some(item => item.nombre=== "AUXILIAR");
+    let isFarmaceutico = roles.some(item => item.nombre=== "FARMACEUTICO");
     if(!isAdministrador) {
       if(isPaciente && !isMedico) {
         this.stringRoles= "PACIENTE"
@@ -119,6 +121,16 @@ export default {
             item.visible = false;
           }
         }) 
+      } else if(isFarmaceutico){
+        this.stringRoles= "FARMACEUTICO"
+        this.links.forEach((item) =>{
+          if(item.route ==="/medicamentos" || item.route ==="/perfil"){
+            item.visible = true;
+          }else{
+            item.visible = false;
+          }
+        }) 
+        
       }
     }else{
       this.stringRoles= "ADMINISTRADOR"
